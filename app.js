@@ -12,27 +12,30 @@ MongoClient.connect(url, function(err, db) {
 	riobus.ensureIndexes(db, function() {
 		console.log('Indexes are correct');
 
-		var searchLines = process.argv[2];
-		console.log('Starting with line ' + searchLines);
+		var searchLines = [];
+		process.argv.forEach(function(arg) {
+			searchLines.push(arg);
+		});
+		console.log('Starting with lines ' + searchLines);
 
 		riobus.findBusLines(db, searchLines, function(busLines) {
 
 			busLines.forEach(function(line) {
-				console.log("Line " + line.line + ": " + line.spots.length + " bus stops.");
+				console.log("Line " + line.line + ": " + line.spots.length + " bus stops");
 
 				var totalBusStops = line.spots.length;
 				var countStops = 0;
 
 				line.spots.forEach(function(bus_stop) {
 					riobus.findBusesCloseToCoordinate(db, line.line, bus_stop.longitude, bus_stop.latitude, function(matches) {
-						console.log("- [" + countStops + "/" + totalBusStops + "] " + matches.length + " buses close to [" + bus_stop.latitude + ", " + bus_stop.longitude + "]");
+						console.log("- [" + ++countStops + "/" + totalBusStops + "] " + matches.length + " buses close to [" + bus_stop.latitude + ", " + bus_stop.longitude + "]");
 
 					    matches.forEach(function(bus) {
 					     	console.log("-- " + bus.order + " with distance " + bus.dist.calculated + " (bus: " + bus.dist.location + ")");
 					    });
 
 					    if (matches.length > 0) console.log('');
-					    if (++countStops == totalBusStops) process.exit(0);
+					    if (countStops == totalBusStops) process.exit(0);
 		 			});
 	 			});
 			});
