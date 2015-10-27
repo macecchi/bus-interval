@@ -4,10 +4,9 @@ var assert = require('assert');
  * Finds vehicles that are within a certain distance from a coordinate.
  */
 function findBusesCloseToCoordinate(db, line, longitude, latitude, callback) {
-	db.collection('bus').aggregate([
+	db.collection('bus_history').aggregate([
 	{ 
 		"$geoNear": { 
-
 			"near": { "type": "Point", "coordinates": [ latitude, longitude ] },
 			"maxDistance": 100,
 			"distanceField": "dist.calculated",
@@ -17,7 +16,10 @@ function findBusesCloseToCoordinate(db, line, longitude, latitude, callback) {
 		}
 	},
 	{ 
-         "$sort": { "dist.calculated": -1 } // Sort the nearest first
+         "$sort": {
+         	"order": 1,
+         	"timestamp": 1
+         }
     }
     ]).toArray(function(err, result) {
 	 	assert.equal(err, null);
@@ -47,7 +49,7 @@ function findBusLines(db, lines, callback) {
  * Ensures indexes from 'bus' collection are defined as 2dsphere coordinates.
  */
 function ensureIndexes(db, callback) {
-	db.collection('bus').createIndex(
+	db.collection('bus_history').createIndex(
 		{ "coordinates": "2dsphere" },
 		null,
 		function(err, results) {
