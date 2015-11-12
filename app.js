@@ -5,6 +5,8 @@ var url = 'mongodb://localhost:27017/riobus';
 var riobus = require('./operations');
 var utils = require('./utils');
 
+const DUPLICATED_TIME_LIMIT = 20; // Maximum time a bus near the same area can be considered to be duplicated (minutes)
+
 assert(process.argv.length > 2, 'Missing bus line parameter.');
 
 MongoClient.connect(url, function(err, db) {
@@ -48,7 +50,13 @@ MongoClient.connect(url, function(err, db) {
 					    		previousMatches.forEach(function(pastMatch) {
 					    			minutesDiff = Math.min(minutesDiff, Math.round(Math.abs(time - new Date(pastMatch.timestamp))/1000/60));
 					    		});
-					    		duplicated = minutesDiff < 10;
+
+					    		if (minutesDiff < DUPLICATED_TIME_LIMIT) {
+					    			duplicated = true;
+					    		}
+					    		else {
+					    			duplicated = false;
+					    		}
 					    	}
 					    	else {
 					    		previousMatches = [];
@@ -61,7 +69,7 @@ MongoClient.connect(url, function(err, db) {
 					     		console.log("-- " + bus.order + " with distance " + Math.ceil(bus.dist.calculated) + "m (bus: " + bus.dist.location + " @ " + time.toLocaleString() + ")");
 					    	}
 					    	else {
-					     		// console.log("--- " + bus.order + " with distance " + Math.ceil(bus.dist.calculated) + "m (bus: " + bus.dist.location + " @ " + time.toLocaleString() + ")");
+					     		console.log("--- " + bus.order + " with distance " + Math.ceil(bus.dist.calculated) + "m (bus: " + bus.dist.location + " @ " + time.toLocaleString() + ")");
 					    	}
 
 					    	previousMatch = bus;

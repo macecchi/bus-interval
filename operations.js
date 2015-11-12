@@ -18,7 +18,7 @@ function findBusesCloseToCoordinate(db, line, longitude, latitude, callback) {
 	{ 
          "$sort": {
          	"order": 1,
-         	"timestamp": 1
+         	"dist.calculated": 1
          }
     }
     ]).toArray(function(err, result) {
