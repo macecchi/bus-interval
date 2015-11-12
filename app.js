@@ -3,6 +3,7 @@ var assert = require('assert');
 var ObjectId = require('mongodb').ObjectID;
 var url = 'mongodb://localhost:27017/riobus';
 var riobus = require('./operations');
+var utils = require('./utils');
 
 assert(process.argv.length > 2, 'Missing bus line parameter.');
 
@@ -67,28 +68,30 @@ MongoClient.connect(url, function(err, db) {
 					    });
 
 					    // Calculate time between buses
-					    console.log('\nStatistics:');
+					    console.log('\nStatistics - Bus stop #' + countStops + ':');
 						previousMatch = {};
-						var timeDiffSum = 0, timeDiffN = 0;
+						var timeDiffs = [];
 						busStopHistory.forEach(function(bus) {
 							if (bus.order == previousMatch.order) {
 								var timeDiffFromLast = Math.round(Math.abs(new Date(bus.timestamp) - new Date(previousMatch.timestamp))/1000/60);
 								// Ignore buses with time interval bigger than 4 hours
 								if (timeDiffFromLast < 4*60) {
-									timeDiffSum += timeDiffFromLast;
-									timeDiffN++;
+									timeDiffs.push(timeDiffFromLast);
 								}
 							}
 							else {
-								if (timeDiffN > 0) {
-									var timeDiffAverage = timeDiffSum/timeDiffN;
-									var timeDiffHours = Math.floor(timeDiffAverage / 60);
-									var timeDiffMinutes = Math.floor(timeDiffAverage % 60);
+								if (timeDiffs.length > 0) {
+									process.stdout.write('Return times for order ' + previousMatch.order + ': ');
+									var timeDiffSum = 0;
+									timeDiffs.forEach(function(timeDiff) {
+										process.stdout.write(utils.minutesToFormattedTime(timeDiff) + ' ');
+										timeDiffSum += timeDiff;
+									});
 
-									console.log('Average return time for order ' + previousMatch.order + ': ' + timeDiffHours + 'h' + timeDiffMinutes + 'min');
+									var timeDiffAverage = timeDiffSum/timeDiffs.length;
+									process.stdout.write('(avg: ' + utils.minutesToFormattedTime(timeDiffAverage) + ')\n');
 								}
-								timeDiffSum = 0;
-								timeDiffN = 0;
+								timeDiffs = [];
 							}
 							previousMatch = bus;
 
