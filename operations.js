@@ -12,7 +12,7 @@ function findBusesCloseToCoordinate(db, line, longitude, latitude, callback) {
 			"distanceField": "dist.calculated",
 			"includeLocs": "dist.location",
 			"spherical": true,
-			"query": { "line": line }
+			"query": { "line": line, "timestamp": { "$gte": new Date("2015-10-28T00:00:00.000Z"), "$lte": new Date("2015-10-29T00:00:00.000Z") } }
 		}
 	},
 	{ 
