@@ -75,37 +75,14 @@ MongoClient.connect(url, function(err, db) {
 					    	previousMatch = bus;
 					    });
 
-					    // Calculate time between buses
+
+					    // Generate statistics for bus stop
 					    console.log('\nStatistics - Bus stop #' + countStops + ':');
-						previousMatch = {};
-						var timeDiffs = [];
-						busStopHistory.forEach(function(bus) {
-							if (bus.order == previousMatch.order) {
-								var timeDiffFromLast = Math.round(Math.abs(new Date(bus.timestamp) - new Date(previousMatch.timestamp))/1000/60);
-								// Ignore buses with time interval bigger than 4 hours
-								if (timeDiffFromLast < 4*60) {
-									timeDiffs.push(timeDiffFromLast);
-								}
-							}
-							else {
-								if (timeDiffs.length > 0) {
-									process.stdout.write('Return times for order ' + previousMatch.order + ': ');
-									var timeDiffSum = 0;
-									timeDiffs.forEach(function(timeDiff) {
-										process.stdout.write(utils.minutesToFormattedTime(timeDiff) + ' ');
-										timeDiffSum += timeDiff;
-									});
-
-									var timeDiffAverage = timeDiffSum/timeDiffs.length;
-									process.stdout.write('(avg: ' + utils.minutesToFormattedTime(timeDiffAverage) + ')\n');
-								}
-								timeDiffs = [];
-							}
-							previousMatch = bus;
-
-						});
-
-					    if (matches.length > 0) console.log('');
+					    
+					    riobus.calculateTimeBetweenBuses(busStopHistory);
+					    riobus.calculateBusReturnTimes(busStopHistory);
+						
+					    console.log('');
 					    if (countStops == totalBusStops) process.exit(0);
 		 			}); // end matches loop
 
