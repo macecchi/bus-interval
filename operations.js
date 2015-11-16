@@ -38,7 +38,6 @@ function findBusLines(db, lines, callback) {
 
 	cursor.each(function(err, doc) {
 		assert.equal(err, null);
-
 		if (doc != null) {
 			busLines.push(doc);
 		} else {

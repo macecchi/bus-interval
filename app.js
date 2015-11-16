@@ -30,12 +30,11 @@ MongoClient.connect(url, function(err, db) {
 
 				var totalBusStops = line.spots.length;
 				var countStops = 0;
-
 				line.spots.forEach(function(bus_stop) {
 					var busStopHistory = [];
 					
 					riobus.findBusesCloseToCoordinate(db, line.line, bus_stop.longitude, bus_stop.latitude, function(matches) {
-						console.log(colors.bold.bgWhite.black("[" + ++countStops + "/" + totalBusStops + "] Bus stop at [" + bus_stop.latitude + ", " + bus_stop.longitude + "]"));
+						console.log(colors.bold.bgWhite.black("[" + ++countStops + "/" + totalBusStops + "] Bus stop with sequence " + bus_stop.sequential + " at [" + bus_stop.latitude + ", " + bus_stop.longitude + "]"));
 
 						var previousMatch = {};
 						var previousMatches = [];
@@ -76,7 +75,7 @@ MongoClient.connect(url, function(err, db) {
 
 
 					    // Generate statistics for bus stop
-					    console.log(colors.yellow('\nStatistics - Bus stop #' + countStops + ':'));
+					    console.log(colors.yellow('\nStatistics - Bus stop #' + bus_stop.sequential + ':'));
 					    
 					    riobus.calculateTimeBetweenBuses(busStopHistory);
 					    riobus.calculateBusReturnTimes(busStopHistory);
