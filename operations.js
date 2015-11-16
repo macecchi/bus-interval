@@ -1,4 +1,5 @@
 var assert = require('assert');
+var colors = require('colors');
 var utils = require('./utils');
 
 /**
@@ -9,7 +10,7 @@ function findBusesCloseToCoordinate(db, line, longitude, latitude, callback) {
 	{ 
 		"$geoNear": { 
 			"near": { "type": "Point", "coordinates": [ latitude, longitude ] },
-			"maxDistance": 100,
+			"maxDistance": 99,
 			"distanceField": "dist.calculated",
 			"includeLocs": "dist.location",
 			"spherical": true,
@@ -69,7 +70,7 @@ function calculateTimeBetweenBuses(busStopHistory) {
 			}
 		});
 		if (shortestDiffBus) {
-			console.log('* Time since last bus: ' + utils.minutesToFormattedTime(shortestDiff) + ' (between ' + bus.order + ' and ' + shortestDiffBus.order + ')');
+			console.log('* Time since last bus: ' + utils.minutesToFormattedTime(shortestDiff).bold + colors.dim(' (between ' + bus.order + ' and ' + shortestDiffBus.order + ')'));
 		}
 	});
 }
@@ -92,10 +93,10 @@ function calculateBusReturnTimes(busStopHistory) {
 		}
 		else {
 			if (timeDiffs.length > 0) {
-				process.stdout.write('Return times for order ' + previousMatch.order + ': ');
+				process.stdout.write('* Return times for order ' + previousMatch.order + ': ');
 				var timeDiffSum = 0;
 				timeDiffs.forEach(function(timeDiff) {
-					process.stdout.write(utils.minutesToFormattedTime(timeDiff) + ' ');
+					process.stdout.write(utils.minutesToFormattedTime(timeDiff).bold + ' ');
 					timeDiffSum += timeDiff;
 				});
 
@@ -117,7 +118,6 @@ function ensureIndexes(db, callback) {
 		{ "coordinates": "2dsphere" },
 		null,
 		function(err, results) {
-			console.log(results);
 			callback();
 		}
 		);

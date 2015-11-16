@@ -1,0 +1,33 @@
+{
+  "name": "bus-interval",
+  "version": "0.1.0",
+  "description": "Calculate bus interval times using data from Rio Bus",
+  "main": "app.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/macecchi/bus-interval.git"
+  },
+  "keywords": [
+    "riobus",
+    "rio",
+    "bus",
+    "bus",
+    "interval",
+    "bus",
+    "frequency"
+  ],
+  "author": "Mario Cecchi",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/macecchi/bus-interval/issues"
+  },
+  "homepage": "https://github.com/macecchi/bus-interval#readme",
+  "dependencies": {
+    "assert": "^1.3.0",
+    "colors": "^1.1.2",
+    "mongodb": "^2.0.48"
+  }
+}

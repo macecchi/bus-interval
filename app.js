@@ -2,6 +2,7 @@ var MongoClient = require('mongodb').MongoClient;
 var assert = require('assert');
 var ObjectId = require('mongodb').ObjectID;
 var url = 'mongodb://localhost:27017/riobus';
+var colors = require('colors');
 var riobus = require('./operations');
 var utils = require('./utils');
 
@@ -34,15 +35,16 @@ MongoClient.connect(url, function(err, db) {
 					var busStopHistory = [];
 					
 					riobus.findBusesCloseToCoordinate(db, line.line, bus_stop.longitude, bus_stop.latitude, function(matches) {
-						console.log("- [" + ++countStops + "/" + totalBusStops + "] " + matches.length + " buses close to [" + bus_stop.latitude + ", " + bus_stop.longitude + "]");
+						console.log(colors.bold.bgWhite.black("[" + ++countStops + "/" + totalBusStops + "] Bus stop at [" + bus_stop.latitude + ", " + bus_stop.longitude + "]"));
 
 						var previousMatch = {};
 						var previousMatches = [];
 						
+						console.log(colors.green('Found ' + matches.length + ' occurences within range of bus stop:'));
 					    matches.forEach(function(bus) {
 					    	var time = new Date(bus.timestamp);
 					    	var duplicated;
-					    	var minutesDiff = 99999;
+					    	var minutesDiff = Number.POSITIVE_INFINITY;
 
 					    	// See if the bus is a duplicate (if it's the same order in the same place in the same time interval)
 					    	if (bus.order == previousMatch.order) {
@@ -60,16 +62,13 @@ MongoClient.connect(url, function(err, db) {
 					    	}
 					    	else {
 					    		previousMatches = [];
-					    		minutesDiff = 99999;
+					    		minutesDiff = Number.POSITIVE_INFINITY;
 					    		duplicated = false;
 					    	}
 
 					    	if (!duplicated) {
 					    		busStopHistory.push(bus);
-					     		console.log("-- " + bus.order + " with distance " + Math.ceil(bus.dist.calculated) + "m (bus: " + bus.dist.location + " @ " + time.toLocaleString() + ")");
-					    	}
-					    	else {
-					     		console.log("--- " + bus.order + " with distance " + Math.ceil(bus.dist.calculated) + "m (bus: " + bus.dist.location + " @ " + time.toLocaleString() + ")");
+					     		console.log("- " + bus.order + " with distance " + utils.pad(Math.ceil(bus.dist.calculated),2) + "m (bus: ➤ " + utils.pad(bus.direction,3) + " @ " + utils.formatDateTime(time) + ")");
 					    	}
 
 					    	previousMatch = bus;
@@ -77,7 +76,7 @@ MongoClient.connect(url, function(err, db) {
 
 
 					    // Generate statistics for bus stop
-					    console.log('\nStatistics - Bus stop #' + countStops + ':');
+					    console.log(colors.yellow('\nStatistics - Bus stop #' + countStops + ':'));
 					    
 					    riobus.calculateTimeBetweenBuses(busStopHistory);
 					    riobus.calculateBusReturnTimes(busStopHistory);
