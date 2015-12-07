@@ -17,15 +17,21 @@ process.argv.slice(2).forEach(function(arg) {
 
 console.log('Searching with lines ' + searchLines);
 
+console.time('Total');
+
 MongoClient.connect(url, function(err, db) {
 	assert.equal(null, err);
 
 
 	console.log('Finding buses for line on date...');
 
+	console.time('LineOnDate Query');
 	riobus.findBusesFromLineOnDate(db, searchLines, function(tempCollectionName) {
 		console.log('Found history for line on date. Saved to collection "' + tempCollectionName + '"...');
+		console.timeEnd('LineOnDate Query');
 
+
+		console.time('GeoNear Query');
 		riobus.findBusLines(db, searchLines, function(busLines) {
 
 			busLines.forEach(function(line) {
@@ -88,7 +94,11 @@ MongoClient.connect(url, function(err, db) {
 					    riobus.calculateBusReturnTimes(busStopHistory);
 						
 					    console.log('');
-					    if (countStops == totalBusStops) process.exit(0);
+					    if (countStops == totalBusStops) {
+							console.timeEnd('GeoNear Query');
+					    	console.timeEnd('Total');
+					    	process.exit(0);
+					    }
 		 			}); // end matches loop
 
 					
