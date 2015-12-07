@@ -2,11 +2,39 @@ var assert = require('assert');
 var colors = require('colors');
 var utils = require('./utils');
 
+const BUS_HISTORY_COLLECTION = 'bus_history_old';
+
+/**
+ * Find buses of the requested lines on a specific date and save it to a separate collection.
+ * The indexes are also redefined on the new temporary collection.
+ */
+function findBusesFromLineOnDate(db, lines, callback) {
+	var tempCollectionName = 'bus_history_temp';
+
+	db.collection(tempCollectionName).drop(function(err, response) {
+		assert.equal(err, null);
+
+		var cursor = db.collection(BUS_HISTORY_COLLECTION).find({ "timestamp": { "$gte": new Date("2015-11-24T00:00:00.000Z"), "$lte": new Date("2015-11-25T00:00:00.000Z") }, "line": { "$in": lines } });
+		cursor.each(function(err, doc) {
+			assert.equal(err, null);
+			if (doc != null) {
+				db.collection(tempCollectionName).insert(doc);
+			}
+			else {
+				ensureIndexes(db, tempCollectionName, function() {
+					callback(tempCollectionName);
+				});
+			}
+		});
+	});
+
+}
+
 /**
  * Finds vehicles that are within a certain distance from a coordinate.
  */
-function findBusesCloseToCoordinate(db, line, longitude, latitude, callback) {
-	db.collection('bus_history').aggregate([
+function findBusesCloseToCoordinate(db, collection, line, longitude, latitude, callback) {
+	db.collection(collection).aggregate([
 	{ 
 		"$geoNear": { 
 			"near": { "type": "Point", "coordinates": [ latitude, longitude ] },
@@ -14,7 +42,7 @@ function findBusesCloseToCoordinate(db, line, longitude, latitude, callback) {
 			"distanceField": "dist.calculated",
 			"includeLocs": "dist.location",
 			"spherical": true,
-			"query": { "line": line, "timestamp": { "$gte": new Date("2015-10-28T00:00:00.000Z"), "$lte": new Date("2015-10-29T00:00:00.000Z") } }
+			"query": { "line": line }
 		}
 	},
 	{ 
@@ -27,6 +55,7 @@ function findBusesCloseToCoordinate(db, line, longitude, latitude, callback) {
 	 	assert.equal(err, null);
      	callback(result);
  	});
+
  }
 
 /**
@@ -112,17 +141,16 @@ function calculateBusReturnTimes(busStopHistory) {
 /**
  * Ensures indexes from 'bus' collection are defined as 2dsphere coordinates.
  */
-function ensureIndexes(db, callback) {
-	db.collection('bus_history').createIndex(
-		{ "coordinates": "2dsphere" },
-		null,
-		function(err, results) {
+function ensureIndexes(db, collection, callback) {
+	db.collection(collection).createIndex({ "coordinates": "2dsphere" }, null, function(err, results) {
+		db.collection(collection).createIndex({ "timestamp": 1, "line": 1 }, null, function(err, results) {
 			callback();
-		}
-		);
+		});
+	});
 };
 
 module.exports = {
+	findBusesFromLineOnDate: findBusesFromLineOnDate,
 	findBusesCloseToCoordinate: findBusesCloseToCoordinate,
 	findBusLines: findBusLines,
 	calculateTimeBetweenBuses: calculateTimeBetweenBuses,
