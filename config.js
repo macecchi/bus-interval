@@ -17,8 +17,13 @@ module.exports = {
         busHistoryTemporaryCollection: 'bus_history_temp'
     },
     query: {
-        dateInterval: ["2015-12-08T02:00:00.000Z", "2015-12-09T02:00:00.000Z"], // Time interval to query. Add 2 hours to fix timezone.
-        maxDistance: 99, // Maximum distance a bus can be to a stop to be considered valid (meters)
-        duplicatedBusTimeLimit: 15 // Maximum time a bus near the same area can be considered to be duplicated (minutes)
+        // Time interval to query. Add 2 hours to fix timezone. (eg: whole day: 02:00:00-02:00:00. from 6 to 22: 08:00:00-23:59:59)
+        dateInterval: ["2015-12-08T08:00:00.000Z", "2015-12-08T23:59:59.000Z"],
+        
+        // Maximum distance a bus can be to a stop to be considered valid (meters)
+        maxDistance: 99,
+        
+        // Maximum time a bus near the same area can be considered to be duplicated (minutes)
+        duplicatedBusTimeLimit: 15
     }
 };
