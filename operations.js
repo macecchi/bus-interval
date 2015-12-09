@@ -1,8 +1,22 @@
 var assert = require('assert');
 var colors = require('colors');
+var MongoClient = require('mongodb').MongoClient;
+var ObjectId = require('mongodb').ObjectID;
+var Config = require('./config');
 var utils = require('./utils');
 
 const BUS_HISTORY_COLLECTION = 'bus_history_old';
+
+/**
+ * Connect to database.
+ */
+function connect(callback) {
+	var config = Config.database;
+	var url = `${config.host}:${config.port}/${config.dbName}`;
+	if (config.user!=='' && config.pass!=='') url = `${config.user}:${config.pass}@${url}`;
+	url = 'mongodb://' + url;
+	MongoClient.connect(url, function(err, db) { callback(err, db);  });
+}
 
 /**
  * Find buses of the requested lines on a specific date and save it to a separate collection.
@@ -12,7 +26,7 @@ function findBusesFromLineOnDate(db, lines, callback) {
 	var tempCollectionName = 'bus_history_temp';
 
 	db.collection(tempCollectionName).drop(function(err, response) {
-		assert.equal(err, null);
+		if (err.errmsg !== "ns not found") throw err;
 
 		var cursor = db.collection(BUS_HISTORY_COLLECTION).find({ "timestamp": { "$gte": new Date("2015-11-24T00:00:00.000Z"), "$lte": new Date("2015-11-25T00:00:00.000Z") }, "line": { "$in": lines } });
 		cursor.each(function(err, doc) {
@@ -61,7 +75,7 @@ function findBusesCloseToCoordinate(db, collection, line, longitude, latitude, c
 /**
  * Finds bus stops for the specified bus lines.
  */
-function findBusLines(db, lines, callback) {
+function findBusStops(db, lines, callback) {
 	var cursor = db.collection('bus_stop').find({ "line": { "$in": lines } });
 	var busLines = [];
 
@@ -150,9 +164,10 @@ function ensureIndexes(db, collection, callback) {
 };
 
 module.exports = {
+	connect: connect,
 	findBusesFromLineOnDate: findBusesFromLineOnDate,
 	findBusesCloseToCoordinate: findBusesCloseToCoordinate,
-	findBusLines: findBusLines,
+	findBusStops: findBusStops,
 	calculateTimeBetweenBuses: calculateTimeBetweenBuses,
 	calculateBusReturnTimes: calculateBusReturnTimes,
 	ensureIndexes: ensureIndexes
