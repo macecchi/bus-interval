@@ -101,15 +101,30 @@ function calculateTimeBetweenBuses(busStopHistory) {
 		return dateA - dateB;
 	});
 	
+	var timeDiffs = [];
+	
 	for (var i=1; i<busStopHistoryOrdered.length; i++) {
 		var bus = busStopHistoryOrdered[i];
 		var busPrevious = busStopHistoryOrdered[i-1];
 
 		// Time between buses
 		var timeDiff = Math.round(Math.abs(new Date(bus.timestamp) - new Date(busPrevious.timestamp))/1000/60);
+		timeDiffs.push(timeDiff);
 		
 		console.log('* Time since last bus: ' + Utils.minutesToFormattedTime(timeDiff).bold + colors.dim(' (between ' + busPrevious.order + ' at ' + Utils.formatTime(busPrevious.timestamp) + ' and ' + bus.order + ' at ' + Utils.formatTime(bus.timestamp) + ')'));
 	}
+	
+	// Calculate average time between buses
+	var average = 0;
+	timeDiffs.forEach(function(timeDiff) { average += timeDiff; });
+	average /= timeDiffs.length;
+	process.stdout.write('* Average time between buses: ' + Utils.minutesToFormattedTime(average).bold);
+	
+	// Calculate standard deviation
+	var stdDeviation = 0;
+	timeDiffs.forEach(function(timeDiff) { stdDeviation += Math.pow(timeDiff - average,2); });
+	stdDeviation = Math.sqrt(stdDeviation/(timeDiffs.length-1));
+	process.stdout.write(' (standard deviation: ' + Utils.minutesToFormattedTime(stdDeviation) + ')\n');
 }
 
 /**
