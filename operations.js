@@ -1,11 +1,10 @@
+/* global process; */
 var assert = require('assert');
 var colors = require('colors');
 var MongoClient = require('mongodb').MongoClient;
 var ObjectId = require('mongodb').ObjectID;
 var Config = require('./config');
 var utils = require('./utils');
-
-const BUS_HISTORY_COLLECTION = 'bus_history_old';
 
 /**
  * Connect to database.
@@ -15,7 +14,7 @@ function connect(callback) {
 	var url = `${config.host}:${config.port}/${config.dbName}`;
 	if (config.user!=='' && config.pass!=='') url = `${config.user}:${config.pass}@${url}`;
 	url = 'mongodb://' + url;
-	MongoClient.connect(url, function(err, db) { callback(err, db);  });
+	MongoClient.connect(url, function(err, db) { callback(err, db); });
 }
 
 /**
@@ -23,12 +22,13 @@ function connect(callback) {
  * The indexes are also redefined on the new temporary collection.
  */
 function findBusesFromLineOnDate(db, lines, callback) {
-	var tempCollectionName = 'bus_history_temp';
+	var tempCollectionName = Config.schema.busHistoryTemporaryCollection;
+	var queryInterval = Config.query.dateInterval;
 
 	db.collection(tempCollectionName).drop(function(err, response) {
-		if (err.errmsg !== "ns not found") throw err;
+		if (err != null && err.errmsg !== "ns not found") throw err;
 
-		var cursor = db.collection(BUS_HISTORY_COLLECTION).find({ "timestamp": { "$gte": new Date("2015-11-24T00:00:00.000Z"), "$lte": new Date("2015-11-25T00:00:00.000Z") }, "line": { "$in": lines } });
+		var cursor = db.collection(Config.schema.busHistoryCollection).find({ "timestamp": { "$gte": new Date(queryInterval[0]), "$lte": new Date(queryInterval[1]) }, "line": { "$in": lines } });
 		cursor.each(function(err, doc) {
 			assert.equal(err, null);
 			if (doc != null) {
@@ -52,7 +52,7 @@ function findBusesCloseToCoordinate(db, collection, line, longitude, latitude, c
 	{ 
 		"$geoNear": { 
 			"near": { "type": "Point", "coordinates": [ latitude, longitude ] },
-			"maxDistance": 99,
+			"maxDistance": Config.query.maxDistance,
 			"distanceField": "dist.calculated",
 			"includeLocs": "dist.location",
 			"spherical": true,
@@ -76,7 +76,7 @@ function findBusesCloseToCoordinate(db, collection, line, longitude, latitude, c
  * Finds bus stops for the specified bus lines.
  */
 function findBusStops(db, lines, callback) {
-	var cursor = db.collection('bus_stop').find({ "line": { "$in": lines } });
+	var cursor = db.collection(Config.schema.busStopsCollection).find({ "line": { "$in": lines } });
 	var busLines = [];
 
 	cursor.each(function(err, doc) {

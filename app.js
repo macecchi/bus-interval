@@ -1,12 +1,9 @@
 /* global process; */
-
 var Config = require('./config');
 var assert = require('assert');
 var colors = require('colors');
 var riobus = require('./operations');
 var utils = require('./utils');
-
-const DUPLICATED_TIME_LIMIT = 15; // Maximum time a bus near the same area can be considered to be duplicated (minutes)
 
 assert(process.argv.length > 2, 'Missing bus line parameter.');
 
@@ -68,7 +65,7 @@ riobus.connect(function(err, db) {
 									minutesDiff = Math.min(minutesDiff, Math.round(Math.abs(time - new Date(pastMatch.timestamp))/1000/60));
 								});
 	
-								if (minutesDiff < DUPLICATED_TIME_LIMIT) {
+								if (minutesDiff < Config.query.duplicatedBusTimeLimit) {
 									duplicated = true;
 								}
 								else {
