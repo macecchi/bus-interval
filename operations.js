@@ -4,7 +4,7 @@ var colors = require('colors');
 var MongoClient = require('mongodb').MongoClient;
 var ObjectId = require('mongodb').ObjectID;
 var Config = require('./config');
-var utils = require('./utils');
+var Utils = require('./utils');
 
 /**
  * Connect to database.
@@ -112,7 +112,7 @@ function calculateTimeBetweenBuses(busStopHistory) {
 			}
 		});
 		if (shortestDiffBus) {
-			console.log('* Time since last bus: ' + utils.minutesToFormattedTime(shortestDiff).bold + colors.dim(' (between ' + bus.order + ' and ' + shortestDiffBus.order + ')'));
+			console.log('* Time since last bus: ' + Utils.minutesToFormattedTime(shortestDiff).bold + colors.dim(' (between ' + shortestDiffBus.order + ' at ' + Utils.formatTime(shortestDiffBus.timestamp) + ' and ' + bus.order + ' at ' + Utils.formatTime(bus.timestamp) + ')'));
 		}
 	});
 }
@@ -138,12 +138,12 @@ function calculateBusReturnTimes(busStopHistory) {
 				process.stdout.write('* Return times for order ' + previousMatch.order + ': ');
 				var timeDiffSum = 0;
 				timeDiffs.forEach(function(timeDiff) {
-					process.stdout.write(utils.minutesToFormattedTime(timeDiff).bold + ' ');
+					process.stdout.write(Utils.minutesToFormattedTime(timeDiff).bold + ' ');
 					timeDiffSum += timeDiff;
 				});
 
 				var timeDiffAverage = timeDiffSum/timeDiffs.length;
-				process.stdout.write('(avg: ' + utils.minutesToFormattedTime(timeDiffAverage) + ')\n');
+				process.stdout.write('(avg: ' + Utils.minutesToFormattedTime(timeDiffAverage) + ')\n');
 			}
 			timeDiffs = [];
 		}

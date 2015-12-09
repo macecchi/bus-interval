@@ -11,8 +11,13 @@ function formatDateTime(date) {
 	return '' + padZero(date.getDate(),2) + '/' + padZero(date.getMonth()+1,2) + '/' + date.getFullYear() + ' ' + padZero(date.getHours(),2) + ':' + padZero(date.getMinutes(),2) + ':' + padZero(date.getSeconds(),2);
 }
 
+function formatTime(date) {
+	return '' + padZero(date.getHours(),2) + ':' + padZero(date.getMinutes(),2) + ':' + padZero(date.getSeconds(),2);
+}
+
 module.exports = {
 	pad: pad,
 	minutesToFormattedTime: minutesToFormattedTime,
-	formatDateTime: formatDateTime
+	formatDateTime: formatDateTime,
+	formatTime: formatTime
 }
