@@ -2,10 +2,12 @@
 var Config = require('./config');
 var assert = require('assert');
 var colors = require('colors');
-var riobus = require('./operations');
-var utils = require('./utils');
+var RioBus = require('./operations');
+var Utils = require('./utils');
 
 assert(process.argv.length > 2, 'Missing bus line parameter.');
+
+var showDuplicates = (process.argv.indexOf('--show-duplicates') > -1);
 
 var searchLines = [];
 process.argv.slice(2).forEach(function(arg) {
@@ -15,11 +17,11 @@ process.argv.slice(2).forEach(function(arg) {
 console.log('Searching with lines ' + searchLines + '\n');
 console.time('Total');
 
-riobus.connect(function(err, db) {
+RioBus.connect(function(err, db) {
 	assert.equal(null, err);
 
 	console.log('Loading bus stops information...');
-	riobus.findBusStops(db, searchLines, function(busLines) {
+	RioBus.findBusStops(db, searchLines, function(busLines) {
 		// Check if bus stops information is present before continuing
 		var totalBusStops = 0;
 		busLines.forEach(function(line) {
@@ -33,7 +35,7 @@ riobus.connect(function(err, db) {
 	
 		console.time('LineOnDate Query');
 		console.log('Finding buses for line on date...');
-		riobus.findBusesFromLineOnDate(db, searchLines, function(tempCollectionName) {
+		RioBus.findBusesFromLineOnDate(db, searchLines, function(tempCollectionName) {
 			console.log('Found history for line on date. Saved to collection "' + tempCollectionName + '"...');
 			console.timeEnd('LineOnDate Query');
 			
@@ -46,7 +48,7 @@ riobus.connect(function(err, db) {
 				line.spots.forEach(function(bus_stop) {
 					var busStopHistory = [];
 					
-					riobus.findBusesCloseToCoordinate(db, tempCollectionName, line.line, bus_stop.longitude, bus_stop.latitude, function(matches) {
+					RioBus.findBusesCloseToCoordinate(db, tempCollectionName, line.line, bus_stop.longitude, bus_stop.latitude, function(matches) {
 						console.log(colors.bold.bgWhite.black("[" + ++countStops + "/" + totalBusStops + "] Bus stop with sequence " + bus_stop.sequential + " at [" + bus_stop.latitude + ", " + bus_stop.longitude + "]"));
 	
 						var previousMatch = {};
@@ -80,11 +82,10 @@ riobus.connect(function(err, db) {
 	
 							if (!duplicated) {
 								busStopHistory.push(bus);
-								console.log("- " + bus.order + " with distance " + utils.pad(Math.ceil(bus.dist.calculated),2) + "m (bus: ➤ " + utils.pad(bus.direction,3) + " @ " + utils.formatDateTime(time) + ")");
+								console.log("- " + bus.order + " with distance " + Utils.pad(Math.ceil(bus.dist.calculated),2) + "m (bus: ➤ " + Utils.pad(bus.direction,3) + " @ " + Utils.formatDateTime(time) + ")");
 							}
-							else {
-								console.log("-- " + bus.order + " with distance " + utils.pad(Math.ceil(bus.dist.calculated),2) + "m (bus: ➤ " + utils.pad(bus.direction,3) + " @ " + utils.formatDateTime(time) + ")");
-	
+							else if (showDuplicates) {
+								console.log("-- " + bus.order + " with distance " + Utils.pad(Math.ceil(bus.dist.calculated),2) + "m (bus: ➤ " + Utils.pad(bus.direction,3) + " @ " + Utils.formatDateTime(time) + ")");
 							}
 	
 							previousMatch = bus;
@@ -94,8 +95,8 @@ riobus.connect(function(err, db) {
 						// Generate statistics for bus stop
 						console.log(colors.yellow('\nStatistics - Bus stop #' + bus_stop.sequential + ':'));
 						
-						riobus.calculateTimeBetweenBuses(busStopHistory);
-						riobus.calculateBusReturnTimes(busStopHistory);
+						RioBus.calculateTimeBetweenBuses(busStopHistory);
+						RioBus.calculateBusReturnTimes(busStopHistory);
 						
 						console.log('');
 						if (countStops == totalBusStops) {

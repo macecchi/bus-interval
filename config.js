@@ -18,7 +18,7 @@ module.exports = {
     },
     query: {
         dateInterval: ["2015-11-24T00:00:00.000Z", "2015-11-25T00:00:00.000Z"],
-        maxDistance: 99,
+        maxDistance: 99, // Maximum distance a bus can be to a stop to be considered valid (meters)
         duplicatedBusTimeLimit: 15 // Maximum time a bus near the same area can be considered to be duplicated (minutes)
     }
 };
