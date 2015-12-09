@@ -94,27 +94,22 @@ function findBusStops(db, lines, callback) {
  * @param busStopHistory An array containing the bus history for a bus stop.
  */
 function calculateTimeBetweenBuses(busStopHistory) {
-	busStopHistory.forEach(function(bus) {
-		// Time between buses
-		// I want to find the closest entry before this one and calculate the time difference between them
-		var busTimestamp = new Date(bus.timestamp);
-		var shortestDiff = Number.POSITIVE_INFINITY;
-		var shortestDiffBus;
-		busStopHistory.forEach(function(busPrevious) {
-			var previousBusTimestamp = new Date(busPrevious.timestamp);
-			// Check if we are testing a previous entry
-			if (previousBusTimestamp < busTimestamp) {
-				var timeDiffFromLast = Math.round(Math.abs(busTimestamp - previousBusTimestamp)/1000/60);
-				if (timeDiffFromLast < shortestDiff) {
-					shortestDiff = timeDiffFromLast;
-					shortestDiffBus = busPrevious;
-				}
-			}
-		});
-		if (shortestDiffBus) {
-			console.log('* Time since last bus: ' + Utils.minutesToFormattedTime(shortestDiff).bold + colors.dim(' (between ' + shortestDiffBus.order + ' at ' + Utils.formatTime(shortestDiffBus.timestamp) + ' and ' + bus.order + ' at ' + Utils.formatTime(bus.timestamp) + ')'));
-		}
+	// Order the array by timestamp so that we only have to compare each entry to the last one.
+	var busStopHistoryOrdered = busStopHistory.slice().sort(function(a, b) {
+		var dateA = new Date(a.timestamp);
+		var dateB = new Date(b.timestamp);
+		return dateA - dateB;
 	});
+	
+	for (var i=1; i<busStopHistoryOrdered.length; i++) {
+		var bus = busStopHistoryOrdered[i];
+		var busPrevious = busStopHistoryOrdered[i-1];
+
+		// Time between buses
+		var timeDiff = Math.round(Math.abs(new Date(bus.timestamp) - new Date(busPrevious.timestamp))/1000/60);
+		
+		console.log('* Time since last bus: ' + Utils.minutesToFormattedTime(timeDiff).bold + colors.dim(' (between ' + busPrevious.order + ' at ' + Utils.formatTime(busPrevious.timestamp) + ' and ' + bus.order + ' at ' + Utils.formatTime(bus.timestamp) + ')'));
+	}
 }
 
 /**
