@@ -8,13 +8,15 @@ var Utils = require('./utils');
 assert(process.argv.length > 2, 'Missing bus line parameter.');
 
 var showDuplicates = (process.argv.indexOf('--show-duplicates') > -1);
+var filterSpot = (process.argv.indexOf('--stop') > -1) ? process.argv[process.argv.indexOf('--stop')+1] : -1;
 
-var searchLines = [];
-process.argv.slice(2).forEach(function(arg) {
-	searchLines.push(arg);
-});
+var lastArg = process.argv[process.argv.length-1];
+assert(!isNaN(lastArg), 'Missing bus line parameter.');
+var searchLines = [lastArg];
 
 console.log('Searching with lines ' + searchLines + '\n');
+if (filterSpot != 0) console.log('Filtering only bus stop with sequence #' + filterSpot);
+
 console.time('Total');
 
 RioBus.connect(function(err, db) {
@@ -46,6 +48,9 @@ RioBus.connect(function(err, db) {
 				totalBusStops = line.spots.length;
 				var countStops = 0;
 				line.spots.forEach(function(bus_stop) {
+					// Skip if it doesn't match our filter
+					if (filterSpot != -1 && bus_stop.sequential != filterSpot) return;
+					
 					var busStopHistory = [];
 					
 					RioBus.findBusesCloseToCoordinate(db, tempCollectionName, line.line, bus_stop.longitude, bus_stop.latitude, function(matches) {
@@ -99,7 +104,7 @@ RioBus.connect(function(err, db) {
 						RioBus.calculateBusReturnTimes(busStopHistory);
 						
 						console.log('');
-						if (countStops == totalBusStops) {
+						if (countStops == totalBusStops || filterSpot != -1) {
 							console.timeEnd('GeoNear Query');
 							console.timeEnd('Total');
 							process.exit(0);
