@@ -15,9 +15,14 @@ function formatTime(date) {
 	return '' + padZero(date.getHours(),2) + ':' + padZero(date.getMinutes(),2) + ':' + padZero(date.getSeconds(),2);
 }
 
+function formatSense(sense) {
+	return sense.split(' X ')[0];
+}
+
 module.exports = {
 	pad: pad,
 	minutesToFormattedTime: minutesToFormattedTime,
 	formatDateTime: formatDateTime,
-	formatTime: formatTime
+	formatTime: formatTime,
+	formatSense: formatSense
 }

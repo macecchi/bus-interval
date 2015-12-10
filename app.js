@@ -38,12 +38,12 @@ RioBus.connect(function(err, db) {
 		console.time('LineOnDate Query');
 		console.log('Finding buses for line on date...');
 		RioBus.findBusesFromLineOnDate(db, searchLines, function(tempCollectionName) {
-			console.log('Found history for line on date. Saved to collection "' + tempCollectionName + '"...');
+			console.log('Found history for line on date. Saved to collection "' + tempCollectionName + '".');
 			console.timeEnd('LineOnDate Query');
 			
 			console.time('GeoNear Query');
 			busLines.forEach(function(line) {
-				console.log("Line " + line.line + ": " + line.spots.length + " bus stops");
+				console.log("Line " + line.line + ": " + line.spots.length + " bus stops\n");
 	
 				totalBusStops = line.spots.length;
 				var countStops = 0;
@@ -87,10 +87,10 @@ RioBus.connect(function(err, db) {
 	
 							if (!duplicated) {
 								busStopHistory.push(bus);
-								console.log("- " + bus.order + " with distance " + Utils.pad(Math.ceil(bus.dist.calculated),2) + "m (bus: ➤ " + Utils.pad(bus.direction,3) + " @ " + Utils.formatDateTime(time) + ")");
+								console.log("- " + bus.order + " with distance " + Utils.pad(Math.ceil(bus.dist.calculated),2) + "m (bus: ➤ " + Utils.pad(bus.direction,3) + " @ " + Utils.formatDateTime(time) + " towards " + Utils.formatSense(bus.sense) + ")");
 							}
 							else if (showDuplicates) {
-								console.log("-- " + bus.order + " with distance " + Utils.pad(Math.ceil(bus.dist.calculated),2) + "m (bus: ➤ " + Utils.pad(bus.direction,3) + " @ " + Utils.formatDateTime(time) + ")");
+								console.log("-- " + bus.order + " with distance " + Utils.pad(Math.ceil(bus.dist.calculated),2) + "m (bus: ➤ " + Utils.pad(bus.direction,3) + " @ " + Utils.formatDateTime(time) + " towards " + Utils.formatSense(bus.sense) + ")");
 							}
 	
 							previousMatch = bus;
