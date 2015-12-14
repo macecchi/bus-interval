@@ -15,7 +15,7 @@ assert(!isNaN(lastArg), 'Missing bus line parameter.');
 var searchLines = [lastArg];
 
 console.log('Searching with lines ' + searchLines + '\n');
-if (filterSpot != 0) console.log('Filtering only bus stop with sequence #' + filterSpot);
+if (filterSpot != -1) console.log('Filtering only bus stop with sequence #' + filterSpot);
 
 console.time('Total');
 
