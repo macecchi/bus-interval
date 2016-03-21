@@ -5,11 +5,11 @@
  */
 module.exports = {
     database: {
-        dbName: process.env.NODEJS_DB_NAME  || 'riobus',
-        host: process.env.NODEJS_DB_HOST    || 'localhost',
-        port: process.env.NODEJS_DB_PORT    || 27017,
-        user: process.env.NODEJS_DB_USER    || '',
-        pass: process.env.NODEJS_DB_PASS    || ''
+        dbName: process.env.RIOBUS_DB_NAME  || 'nodejs',
+        host: process.env.RIOBUS_DB_HOST    || 'localhost',
+        port: process.env.RIOBUS_DB_PORT    || 27017,
+        user: process.env.RIOBUS_DB_USER    || '',
+        pass: process.env.RIOBUS_DB_PASS    || ''
     },
     schema: {
         busStopsCollection: 'bus_stop',
@@ -17,8 +17,8 @@ module.exports = {
         busHistoryTemporaryCollection: 'bus_history_temp'
     },
     query: {
-        // Time interval to query. Add 2 hours to fix timezone. (eg: whole day: 02:00:00-02:00:00. from 6 to 22: 08:00:00-23:59:59)
-        dateInterval: ["2015-12-08T08:00:00.000Z", "2015-12-08T23:59:59.000Z"],
+        // Time interval to query in UTC (min, max)
+        dateInterval: ["2016-03-21T08:00:00.000Z", "2016-03-21T23:59:59.000Z"],
         
         // Maximum distance a bus can be to a stop to be considered valid (meters)
         maxDistance: 99,
