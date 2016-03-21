@@ -32,6 +32,9 @@ function findBusesFromLineOnDate(db, lines, callback) {
 		cursor.each(function(err, doc) {
 			assert.equal(err, null);
 			if (doc != null) {
+                doc.coordinates = [ doc.latitude, doc.longitude ];
+                delete doc.latitude;
+                delete doc.longitude;
 				db.collection(tempCollectionName).insert(doc);
 			}
 			else {
