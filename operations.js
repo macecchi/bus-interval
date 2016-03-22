@@ -28,7 +28,11 @@ function findBusesFromLineOnDate(db, lines, callback) {
 	db.collection(tempCollectionName).drop(function(err, response) {
 		if (err != null && err.errmsg !== "ns not found") throw err;
 
-		var cursor = db.collection(Config.schema.busHistoryCollection).find({ "timestamp": { "$gte": new Date(queryInterval[0]), "$lte": new Date(queryInterval[1]) }, "line": { "$in": lines } });
+		var cursor = db.collection(Config.schema.busHistoryCollection).find({
+             "timestamp": { "$gte": new Date(queryInterval[0]), "$lte": new Date(queryInterval[1]) }, 
+             "line": { "$in": lines } ,
+             "sense": { "$nin": ["desconhecido", "indisponível"] }
+        });
 		cursor.each(function(err, doc) {
 			assert.equal(err, null);
 			if (doc != null) {

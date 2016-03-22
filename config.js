@@ -24,6 +24,6 @@ module.exports = {
         maxDistance: 99,
         
         // Maximum time a bus near the same area can be considered to be duplicated (minutes)
-        duplicatedBusTimeLimit: 15
+        duplicatedBusTimeLimit: 25
     }
 };
