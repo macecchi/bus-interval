@@ -33,7 +33,7 @@ RioBus.connect(function(err, db) {
 			console.log('No bus stops were found for the selected lines. App will terminate.');
 			process.exit(0);
 		}
-		console.log('Total of ' + totalBusStops + ' were found for the selected lines.\n');
+		console.log('Total of ' + totalBusStops + ' bus stops were found for the selected lines.\n');
 	
 		console.time('LineOnDate Query');
 		console.log('Finding buses for line on date...');
@@ -47,6 +47,7 @@ RioBus.connect(function(err, db) {
 	
 				totalBusStops = line.spots.length;
 				var countStops = 0;
+                
 				line.spots.forEach(function(bus_stop) {
 					// Skip if it doesn't match our filter
 					if (filterSpot != -1 && bus_stop.sequential != filterSpot) return;

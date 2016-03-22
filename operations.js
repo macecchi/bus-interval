@@ -85,6 +85,17 @@ function findBusStops(db, lines, callback) {
 	cursor.each(function(err, doc) {
 		assert.equal(err, null);
 		if (doc != null) {
+            // Filter repeated bus stops
+            var processedStops = {};
+            var filteredStops = [];
+            for (var stop of doc.spots) {
+                var busStopHash = JSON.stringify([stop.latitude,stop.longitude]);
+                if (!processedStops[busStopHash]) {
+                    filteredStops.push(stop);
+                    processedStops[busStopHash] = true;
+                }
+            }
+            doc.spots = filteredStops;
 			busLines.push(doc);
 		} else {
 			callback(busLines);
