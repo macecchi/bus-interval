@@ -4,29 +4,44 @@ var assert = require('assert');
 var RioBus = require('./operations');
 
 var db;
+var linesInfo;
+var processedLinesCount = 0;
 
 RioBus.connect(function(err, _db) {
 	assert.equal(null, err);
     db = _db;
 
-    findBusStopsForAllLines(function(linesInfo) {
-        for (var lineInfo of linesInfo) {
-            if (lineInfo.line != '913') continue;
-            
-            console.log('Searching with line ' + lineInfo.line + '\n');
-            processLine(lineInfo, function() {
-                process.exit(0);
-            });
-        }
+    findBusStopsForAllLines(function(linesResult) {
+        linesInfo = linesResult;
+        processLine(linesInfo[0], didFinishProcessingLine);
     });
     
 });
 
+function didFinishProcessingLine() {
+    ++processedLinesCount;
+    console.log(`Status: ${processedLinesCount} of ${linesInfo.length}`)
+    
+    if (processedLinesCount == linesInfo.length) {
+        console.log('Finished processing all lines.');
+        process.exit(0);
+    }
+    
+    processLine(linesInfo[processedLinesCount], didFinishProcessingLine);
+}
+
 function processLine(lineInfo, callback) {
     var line = lineInfo.line;
+    console.log('Searching with line ' + line + '\n');
+    
+    if (lineInfo.spots.length == 0) {
+        console.log('Line does not have any bus stops.');
+        callback();
+        return;
+    }
+    
     prepareLineForProcessing(line, function() {
         var processedSpots = [];
-        
         for (var i=0; i<lineInfo.spots.length; i++) {
             var stopSpot = lineInfo.spots[i];
             
