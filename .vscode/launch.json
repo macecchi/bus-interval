@@ -5,10 +5,10 @@
 			"name": "Launch",
 			"type": "node",
 			"request": "launch",
-			"program": "app.js",
+			"program": "${workspaceRoot}/fixBusStops.js",
 			"stopOnEntry": false,
-			"args": ["325"],
-			"cwd": ".",
+			"args": ["913"],
+			"cwd": "${workspaceRoot}/",
 			"runtimeExecutable": null,
 			"runtimeArgs": [
 				"--nolazy"
