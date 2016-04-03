@@ -1,3 +1,4 @@
+"use strict";
 /* global process; */
 var Config = require('./config');
 var assert = require('assert');
@@ -54,7 +55,7 @@ RioBus.connect(function(err, db) {
 					
 					var busStopHistory = [];
 					
-					RioBus.findBusesCloseToCoordinate(db, tempCollectionName, line.line, bus_stop.longitude, bus_stop.latitude, function(matches) {
+					RioBus.findBusesCloseToCoordinate(db, tempCollectionName, line, bus_stop.longitude, bus_stop.latitude, bus_stop.returning, function(matches) {
 						console.log(colors.bold.bgWhite.black("[" + ++countStops + "/" + totalBusStops + "] Bus stop with sequence " + bus_stop.sequential + " at [" + bus_stop.latitude + ", " + bus_stop.longitude + "]"));
 	
 						var previousMatch = {};

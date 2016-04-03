@@ -1,3 +1,4 @@
+"use strict";
 /* global process; */
 var assert = require('assert');
 var colors = require('colors');
@@ -54,7 +55,7 @@ function findBusesFromLineOnDate(db, lines, callback) {
 /**
  * Finds vehicles that are within a certain distance from a coordinate.
  */
-function findBusesCloseToCoordinate(db, collection, line, longitude, latitude, callback) {
+function findBusesCloseToCoordinate(db, collection, line, longitude, latitude, returning, callback) {
 	db.collection(collection).aggregate([
 	{ 
 		"$geoNear": { 
@@ -63,7 +64,7 @@ function findBusesCloseToCoordinate(db, collection, line, longitude, latitude, c
 			"distanceField": "dist.calculated",
 			"includeLocs": "dist.location",
 			"spherical": true,
-			"query": { "line": line }
+			"query": { "line": line.line, "sense": prepareDirection(line.description, returning) }
 		}
 	},
 	{ 
@@ -78,6 +79,19 @@ function findBusesCloseToCoordinate(db, collection, line, longitude, latitude, c
  	});
 
  }
+
+function prepareDirection(description, returning) {
+    let tmp = 'desconhecido';
+    if(!returning) tmp = description;
+    else if(returning) {
+        let tmpDescription = description.split(' X ');
+        let aux = tmpDescription[1];
+        tmpDescription[1] = tmpDescription[0];
+        tmpDescription[0] = aux;
+        tmp = tmpDescription.join(' X ');
+    }
+    return tmp;
+}
 
 /**
  * Finds bus stops for the specified bus lines.
