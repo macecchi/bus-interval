@@ -157,6 +157,8 @@ function calculateTimeBetweenBuses(busStopHistory) {
 	timeDiffs.forEach(function(timeDiff) { stdDeviation += Math.pow(timeDiff - average,2); });
 	stdDeviation = Math.sqrt(stdDeviation/(timeDiffs.length-1));
 	process.stdout.write(' (standard deviation: ' + Utils.minutesToFormattedTime(stdDeviation) + ')\n');
+	
+	return { avgWaitTime: average, avgWaitTimeStdDev: stdDeviation };
 }
 
 /**
@@ -166,6 +168,9 @@ function calculateTimeBetweenBuses(busStopHistory) {
 function calculateBusReturnTimes(busStopHistory) {
 	var previousMatch = {};
 	var timeDiffs = [];
+	var avgReturnTime = 0;
+	var avgReturnTimeBuses = 0;
+	
 	busStopHistory.forEach(function(bus) {
 		// Return time
 		if (bus.order == previousMatch.order) {
@@ -185,6 +190,8 @@ function calculateBusReturnTimes(busStopHistory) {
 				});
 
 				var timeDiffAverage = timeDiffSum/timeDiffs.length;
+				avgReturnTime += timeDiffAverage;
+				avgReturnTimeBuses++;
 				process.stdout.write('(avg: ' + Utils.minutesToFormattedTime(timeDiffAverage) + ')\n');
 			}
 			timeDiffs = [];
@@ -192,6 +199,9 @@ function calculateBusReturnTimes(busStopHistory) {
 		previousMatch = bus;
 
 	});
+	
+	avgReturnTime = avgReturnTime / avgReturnTimeBuses;
+	return { avgReturnTime: avgReturnTime };
 }
 
 /**

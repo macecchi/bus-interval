@@ -18,7 +18,7 @@ module.exports = {
     },
     query: {
         // Time interval to query in UTC (min, max)
-        dateInterval: ["2016-03-21T08:00:00.000Z", "2016-03-21T23:59:59.000Z"],
+        dateInterval: ["2016-04-13T10:00:00.000Z", "2016-04-13T23:59:59.000Z"],
         
         // Maximum distance a bus can be to a stop to be considered valid (meters)
         maxDistance: 99,

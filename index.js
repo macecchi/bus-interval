@@ -20,6 +20,8 @@ if (filterSpot != -1) console.log('Filtering only bus stop with sequence #' + fi
 
 console.time('Total');
 
+var lineStats = {};
+
 RioBus.connect(function(err, db) {
 	assert.equal(null, err);
 
@@ -45,7 +47,8 @@ RioBus.connect(function(err, db) {
 			console.time('GeoNear Query');
 			busLines.forEach(function(line) {
 				console.log("Line " + line.line + ": " + line.spots.length + " bus stops\n");
-	
+				lineStats[line.line] = { avgWaitTime: 0, avgWaitCount: 0, avgReturnTime: 0, avgReturnCount: 0 };
+					
 				totalBusStops = line.spots.length;
 				var countStops = 0;
                 
@@ -61,54 +64,66 @@ RioBus.connect(function(err, db) {
 						var previousMatch = {};
 						var previousMatches = [];
 						
-						console.log(colors.green('Found ' + matches.length + ' occurences within range of bus stop:'));
-						matches.forEach(function(bus) {
-							var time = new Date(bus.timestamp);
-							var duplicated;
-							var minutesDiff = Number.POSITIVE_INFINITY;
-	
-							// See if the bus is a duplicate (if it's the same order in the same place in the same time interval)
-							if (bus.order == previousMatch.order) {
-								previousMatches.push(previousMatch);
-								previousMatches.forEach(function(pastMatch) {
-									minutesDiff = Math.min(minutesDiff, Math.round(Math.abs(time - new Date(pastMatch.timestamp))/1000/60));
-								});
-	
-								if (minutesDiff < Config.query.duplicatedBusTimeLimit) {
-									duplicated = true;
+						console.log(colors.green('Found ' + matches.length + ' occurences within range of bus stop'));
+						if (matches.length > 0) {
+							matches.forEach(function(bus) {
+								var time = new Date(bus.timestamp);
+								var duplicated;
+								var minutesDiff = Number.POSITIVE_INFINITY;
+		
+								// See if the bus is a duplicate (if it's the same order in the same place in the same time interval)
+								if (bus.order == previousMatch.order) {
+									previousMatches.push(previousMatch);
+									previousMatches.forEach(function(pastMatch) {
+										minutesDiff = Math.min(minutesDiff, Math.round(Math.abs(time - new Date(pastMatch.timestamp))/1000/60));
+									});
+		
+									if (minutesDiff < Config.query.duplicatedBusTimeLimit) {
+										duplicated = true;
+									}
+									else {
+										duplicated = false;
+									}
 								}
 								else {
+									previousMatches = [];
+									minutesDiff = Number.POSITIVE_INFINITY;
 									duplicated = false;
 								}
+		
+								if (!duplicated) {
+									busStopHistory.push(bus);
+									// console.log("- " + bus.order + " with distance " + Utils.pad(Math.ceil(bus.dist.calculated),2) + "m (bus: ➤ " + Utils.pad(bus.direction,3) + " @ " + Utils.formatDateTime(time) + " towards " + Utils.formatSense(bus.sense) + ")");
+								}
+								else if (showDuplicates) {
+									// console.log("-- " + bus.order + " with distance " + Utils.pad(Math.ceil(bus.dist.calculated),2) + "m (bus: ➤ " + Utils.pad(bus.direction,3) + " @ " + Utils.formatDateTime(time) + " towards " + Utils.formatSense(bus.sense) + ")");
+								}
+		
+								previousMatch = bus;
+							});
+		
+		
+							// Generate statistics for bus stop
+							console.log(colors.yellow('\nStatistics - Bus stop #' + bus_stop.sequential + ':'));
+							
+							var waitStats = RioBus.calculateTimeBetweenBuses(busStopHistory);
+							if (!isNaN(waitStats.avgWaitTime) && waitStats.avgWaitTime > 0) {
+								lineStats[line.line].avgWaitTime += waitStats.avgWaitTime;
+								lineStats[line.line].avgWaitCount++;
 							}
-							else {
-								previousMatches = [];
-								minutesDiff = Number.POSITIVE_INFINITY;
-								duplicated = false;
+							var returnStats = RioBus.calculateBusReturnTimes(busStopHistory);
+							if (!isNaN(returnStats.avgReturnTime) && returnStats.avgReturnTime > 0) {
+								lineStats[line.line].avgReturnTime += returnStats.avgReturnTime;
+								lineStats[line.line].avgReturnCount++;
 							}
-	
-							if (!duplicated) {
-								busStopHistory.push(bus);
-								console.log("- " + bus.order + " with distance " + Utils.pad(Math.ceil(bus.dist.calculated),2) + "m (bus: ➤ " + Utils.pad(bus.direction,3) + " @ " + Utils.formatDateTime(time) + " towards " + Utils.formatSense(bus.sense) + ")");
-							}
-							else if (showDuplicates) {
-								console.log("-- " + bus.order + " with distance " + Utils.pad(Math.ceil(bus.dist.calculated),2) + "m (bus: ➤ " + Utils.pad(bus.direction,3) + " @ " + Utils.formatDateTime(time) + " towards " + Utils.formatSense(bus.sense) + ")");
-							}
-	
-							previousMatch = bus;
-						});
-	
-	
-						// Generate statistics for bus stop
-						console.log(colors.yellow('\nStatistics - Bus stop #' + bus_stop.sequential + ':'));
-						
-						RioBus.calculateTimeBetweenBuses(busStopHistory);
-						RioBus.calculateBusReturnTimes(busStopHistory);
+						} // if has matches
 						
 						console.log('');
 						if (countStops == totalBusStops || filterSpot != -1) {
 							console.timeEnd('GeoNear Query');
 							console.timeEnd('Total');
+							
+							printStats(line);
 							process.exit(0);
 						}
 					}); // end findBusesCloseToCoordinate					
@@ -117,3 +132,11 @@ RioBus.connect(function(err, db) {
 		}); // end findBusesFromLineOnDate
 	}); // end findBusStops
 });
+
+function printStats(line) {	
+	var avgWaitTime = lineStats[line.line].avgWaitTime / lineStats[line.line].avgWaitCount;
+	var avgReturnTime = lineStats[line.line].avgReturnTime / lineStats[line.line].avgReturnCount;
+	console.log('Line stats:');
+	console.log('Average wait time: ' + Utils.minutesToFormattedTime(avgWaitTime).bold);
+	console.log('Average return time: ' + Utils.minutesToFormattedTime(avgReturnTime).bold);
+}
