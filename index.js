@@ -110,6 +110,11 @@ function* main() {
 			busStopStats.printStats();
 			
 			lineStats.addBusStopStats(busStopStats);
+			
+			var returnStats = RioBus.calculateBusReturnTimes(busStopHistory);
+			if (!isNaN(returnStats.avgReturnTime) && returnStats.avgReturnTime > 0) {
+				lineStats.addReturnTimePoint(returnStats.avgReturnTime);
+			}
 		}
 		
 		console.log('');

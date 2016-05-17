@@ -3,7 +3,6 @@ const Utils = require('./utils');
 
 class BusStopStats {
     constructor() {
-        this.timeDiffs = [];
         this.hourlyTimeDiffs = [];
         for (let i=0; i<24; i++) {
             this.hourlyTimeDiffs[i] = [];
@@ -19,30 +18,37 @@ class BusStopStats {
     }
     
     // Average wait time
-    addTimeDiffPoint(timeDiff, time) {
-        this.timeDiffs.push(timeDiff);
-        
+    addTimeDiffPoint(timeDiff, time) {        
         let hour = time.getHours();
         this.hourlyTimeDiffs[hour].push(timeDiff);
     }
     
     avgTimeBetweenBuses() {
-        if (this.timeDiffs.length < 2) return 0;
+        var total = 0, count = 0;
         
-        var total = 0;
-        for (let timeDiff of this.timeDiffs) {
-            total += timeDiff;
+        for (let hour=0; hour<24; hour++) {
+            for (let timeDiff of this.hourlyTimeDiffs[hour]) {
+                total += timeDiff;
+                count++;
+            }
         }
-        return total/this.timeDiffs.length;
+        
+        if (count < 2) return 0;
+        return total/count;
     }
     
     // Average return time
     avgTimeBetweenBusesStdDev(average) {
-        var total = 0;
-        for (let timeDiff of this.timeDiffs) {
-            total += Math.pow(timeDiff - average, 2);
+        var total = 0, count = 0;
+        
+        for (let hour=0; hour<24; hour++) {
+            for (let timeDiff of this.hourlyTimeDiffs[hour]) {
+                total += Math.pow(timeDiff - average, 2);
+                count++;
+            }
         }
-        return Math.sqrt(total/(this.timeDiffs.length-1));
+        
+        return Math.sqrt(total/(count-1));
     }
     
     
@@ -52,12 +58,13 @@ class BusStopStats {
         
         for (let hour=0; hour<24; hour++) {
             let total = 0;
-            for (let timeDiff of this.hourlyTimeDiffs[hour]) {
+            let hourAverages = this.hourlyTimeDiffs[hour];
+            for (let timeDiff of hourAverages) {
                 total += timeDiff;
             }
             
-            if (this.hourlyTimeDiffs[hour].length > 0) {
-                let hourAverage = total / this.hourlyTimeDiffs[hour].length;
+            if (hourAverages.length > 0) {
+                let hourAverage = total / hourAverages.length;
                 averages[hour] = hourAverage;
             } else {
                 averages[hour] = 0;
