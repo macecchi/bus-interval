@@ -51,7 +51,7 @@ function* main() {
 	console.time('GeoNear Query');
 	console.log("Line " + line.line + ": " + line.spots.length + " bus stops\n");
 	
-	var lineStats = new LineStats();
+	var lineStats = new LineStats(line);
 
 	totalBusStops = line.spots.length;
 	var countStops = 0;
@@ -125,6 +125,8 @@ function* main() {
 	
 	console.log('Line stats:');
 	lineStats.printStats();
+	lineStats.exportStats();
+	
 	process.exit(0);
 }
 

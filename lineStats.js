@@ -1,8 +1,10 @@
 'use strict';
+const jsonfile = require('jsonfile')
 const Utils = require('./utils');
 
 class LineStats {
-    constructor() {
+    constructor(line) {
+        this.line = line;
         this.waitTime = 0;
         this.waitCount = 0;
         this.returnTime = 0;
@@ -26,6 +28,18 @@ class LineStats {
             let average = hourlyAverages[hour];
             console.log('-- ' + hour + '-' + (hour+1) + 'h: ' + Utils.minutesToFormattedTime(average));
         }
+    }
+    
+    exportStats() {
+        var stats = {
+            line: this.line.line,
+            avgWaitTime: this.avgWaitTime(),
+            avgReturnTime: this.avgReturnTime(),
+            hourlyAvgWaitTimes: this.avgHourlyWait()
+        };
+        
+        jsonfile.spaces = 4;
+        jsonfile.writeFileSync('stats/' + this.line.line + '.json', stats);
     }
     
     // Bus Stop
