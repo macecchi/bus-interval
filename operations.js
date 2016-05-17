@@ -43,8 +43,8 @@ function findBusesFromLineOnDate(db, line, callback) {
 				db.collection(tempCollectionName).insert(doc);
 			}
 			else {
-				ensureIndexes(db, tempCollectionName, function() {
-					callback(tempCollectionName);
+				ensureIndexes(db, tempCollectionName, function(err) {
+					callback(err);
 				});
 			}
 		});
@@ -55,8 +55,10 @@ function findBusesFromLineOnDate(db, line, callback) {
 /**
  * Finds vehicles that are within a certain distance from a coordinate.
  */
-function findBusesCloseToCoordinate(db, collection, line, longitude, latitude, returning, callback) {
-	db.collection(collection).aggregate([
+function findBusesCloseToCoordinate(db, line, longitude, latitude, returning, callback) {
+	var tempCollectionName = Config.schema.busHistoryTemporaryCollection;
+
+	db.collection(tempCollectionName).aggregate([
 	{ 
 		"$geoNear": { 
 			"near": { "type": "Point", "coordinates": [ latitude, longitude ] },
@@ -74,8 +76,7 @@ function findBusesCloseToCoordinate(db, collection, line, longitude, latitude, r
          }
     }
     ]).toArray(function(err, result) {
-	 	assert.equal(err, null);
-     	callback(result);
+     	callback(err, result);
  	});
 
  }
@@ -97,28 +98,25 @@ function prepareDirection(description, returning) {
  * Finds bus stops for the specified bus line.
  */
 function findBusStopsForLine(db, line, callback) {
-	var cursor = db.collection(Config.schema.busStopsCollection).find({ "line": line });
-	var busLines = [];
-
-	cursor.each(function(err, busLine) {
-		assert.equal(err, null);
-		if (busLine != null) {
-            // Filter repeated bus stops
-            var processedStops = {};
-            var filteredStops = [];
-            for (var stop of busLine.spots) {
-                var busStopHash = JSON.stringify([stop.latitude,stop.longitude]);
-                if (!processedStops[busStopHash]) {
-                    filteredStops.push(stop);
-                    processedStops[busStopHash] = true;
-                }
-            }
-            busLine.spots = filteredStops;
-			callback(busLine);
-			return;
+	db.collection(Config.schema.busStopsCollection).find({ "line": line }).limit(1).next(function(err, busLine) {
+		if (busLine) {
+			// Filter repeated bus stops
+			var processedStops = {};
+			var filteredStops = [];
+			for (var stop of busLine.spots) {
+				var busStopHash = JSON.stringify([stop.latitude,stop.longitude]);
+				if (!processedStops[busStopHash]) {
+					filteredStops.push(stop);
+					processedStops[busStopHash] = true;
+				}
+			}
+			busLine.spots = filteredStops;
+			callback(null, busLine);
+		} else {
+			callback(err, null);
 		}
 	});
-};
+}
 
 /**
  * Calculates time passed for each bus on the bus stop since the previous one arrived.
