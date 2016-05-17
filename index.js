@@ -1,8 +1,8 @@
 "use strict";
 /* global process; */
 const assert = require('assert');
-const Config = require('./config');
 const colors = require('colors');
+const Config = require('./config');
 const RioBus = require('./operations');
 const Utils = require('./utils');
 const wait = require('wait.for-es6');
@@ -58,7 +58,7 @@ function* main() {
 	
 	for (let bus_stop of line.spots) {
 		// Skip if it doesn't match our filter
-		if (filterSpot != -1 && bus_stop.sequential != filterSpot) return;
+		if (filterSpot != -1 && bus_stop.sequential != filterSpot) continue;
 		
 		var busStopHistory = [];
 		
@@ -69,44 +69,40 @@ function* main() {
 		var previousMatches = [];
 		
 		console.log(colors.green('Found ' + matches.length + ' occurences within range of bus stop'));
-		if (matches.length > 0) {
-			matches.forEach(function(bus) {
-				var time = new Date(bus.timestamp);
-				var duplicated;
-				var minutesDiff = Number.POSITIVE_INFINITY;
+		for (let bus of matches) {
+			var time = new Date(bus.timestamp);
+			var duplicated;
+			var minutesDiff = Number.POSITIVE_INFINITY;
 
-				// See if the bus is a duplicate (if it's the same order in the same place in the same time interval)
-				if (bus.order == previousMatch.order) {
-					previousMatches.push(previousMatch);
-					previousMatches.forEach(function(pastMatch) {
-						minutesDiff = Math.min(minutesDiff, Math.round(Math.abs(time - new Date(pastMatch.timestamp))/1000/60));
-					});
+			// See if the bus is a duplicate (if it's the same order in the same place in the same time interval)
+			if (bus.order == previousMatch.order) {
+				previousMatches.push(previousMatch);
+				previousMatches.forEach(function(pastMatch) {
+					minutesDiff = Math.min(minutesDiff, Math.round(Math.abs(time - new Date(pastMatch.timestamp))/1000/60));
+				});
 
-					if (minutesDiff < Config.query.duplicatedBusTimeLimit) {
-						duplicated = true;
-					}
-					else {
-						duplicated = false;
-					}
-				}
-				else {
-					previousMatches = [];
-					minutesDiff = Number.POSITIVE_INFINITY;
+				if (minutesDiff < Config.query.duplicatedBusTimeLimit) {
+					duplicated = true;
+				} else {
 					duplicated = false;
 				}
+			} else {
+				previousMatches = [];
+				minutesDiff = Number.POSITIVE_INFINITY;
+				duplicated = false;
+			}
 
-				if (!duplicated) {
-					busStopHistory.push(bus);
-					// console.log("- " + bus.order + " with distance " + Utils.pad(Math.ceil(bus.dist.calculated),2) + "m (bus: ➤ " + Utils.pad(bus.direction,3) + " @ " + Utils.formatDateTime(time) + " towards " + Utils.formatSense(bus.sense) + ")");
-				}
-				else if (showDuplicates) {
-					// console.log("-- " + bus.order + " with distance " + Utils.pad(Math.ceil(bus.dist.calculated),2) + "m (bus: ➤ " + Utils.pad(bus.direction,3) + " @ " + Utils.formatDateTime(time) + " towards " + Utils.formatSense(bus.sense) + ")");
-				}
+			if (!duplicated) {
+				busStopHistory.push(bus);
+				// console.log("- " + bus.order + " with distance " + Utils.pad(Math.ceil(bus.dist.calculated),2) + "m (bus: ➤ " + Utils.pad(bus.direction,3) + " @ " + Utils.formatDateTime(time) + " towards " + Utils.formatSense(bus.sense) + ")");
+			} else if (showDuplicates) {
+				// console.log("-- " + bus.order + " with distance " + Utils.pad(Math.ceil(bus.dist.calculated),2) + "m (bus: ➤ " + Utils.pad(bus.direction,3) + " @ " + Utils.formatDateTime(time) + " towards " + Utils.formatSense(bus.sense) + ")");
+			}
 
-				previousMatch = bus;
-			});
-
-
+			previousMatch = bus;
+		}
+		
+		if (matches.length > 0) {
 			// Generate statistics for bus stop
 			console.log(colors.yellow('\nStatistics - Bus stop #' + bus_stop.sequential + ':'));
 			
@@ -120,7 +116,7 @@ function* main() {
 				lineStats[line.line].avgReturnTime += returnStats.avgReturnTime;
 				lineStats[line.line].avgReturnCount++;
 			}
-		} // if has matches
+		}
 		
 		console.log('');
 	}
