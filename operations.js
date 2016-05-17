@@ -19,10 +19,10 @@ function connect(callback) {
 }
 
 /**
- * Find buses of the requested lines on a specific date and save it to a separate collection.
+ * Find buses of the requested line on a specific date and save it to a separate collection.
  * The indexes are also redefined on the new temporary collection.
  */
-function findBusesFromLineOnDate(db, lines, callback) {
+function findBusesFromLineOnDate(db, line, callback) {
 	var tempCollectionName = Config.schema.busHistoryTemporaryCollection;
 	var queryInterval = Config.query.dateInterval;
 
@@ -31,7 +31,7 @@ function findBusesFromLineOnDate(db, lines, callback) {
 
 		var cursor = db.collection(Config.schema.busHistoryCollection).find({
              "timestamp": { "$gte": new Date(queryInterval[0]), "$lte": new Date(queryInterval[1]) }, 
-             "line": { "$in": lines } ,
+             "line": line,
              "sense": { "$nin": ["desconhecido", "indisponível"] }
         });
 		cursor.each(function(err, doc) {
@@ -94,29 +94,28 @@ function prepareDirection(description, returning) {
 }
 
 /**
- * Finds bus stops for the specified bus lines.
+ * Finds bus stops for the specified bus line.
  */
-function findBusStops(db, lines, callback) {
-	var cursor = db.collection(Config.schema.busStopsCollection).find({ "line": { "$in": lines } });
+function findBusStopsForLine(db, line, callback) {
+	var cursor = db.collection(Config.schema.busStopsCollection).find({ "line": line });
 	var busLines = [];
 
-	cursor.each(function(err, doc) {
+	cursor.each(function(err, busLine) {
 		assert.equal(err, null);
-		if (doc != null) {
+		if (busLine != null) {
             // Filter repeated bus stops
             var processedStops = {};
             var filteredStops = [];
-            for (var stop of doc.spots) {
+            for (var stop of busLine.spots) {
                 var busStopHash = JSON.stringify([stop.latitude,stop.longitude]);
                 if (!processedStops[busStopHash]) {
                     filteredStops.push(stop);
                     processedStops[busStopHash] = true;
                 }
             }
-            doc.spots = filteredStops;
-			busLines.push(doc);
-		} else {
-			callback(busLines);
+            busLine.spots = filteredStops;
+			callback(busLine);
+			return;
 		}
 	});
 };
@@ -219,7 +218,7 @@ module.exports = {
 	connect: connect,
 	findBusesFromLineOnDate: findBusesFromLineOnDate,
 	findBusesCloseToCoordinate: findBusesCloseToCoordinate,
-	findBusStops: findBusStops,
+	findBusStopsForLine: findBusStopsForLine,
 	calculateTimeBetweenBuses: calculateTimeBetweenBuses,
 	calculateBusReturnTimes: calculateBusReturnTimes,
 	ensureIndexes: ensureIndexes

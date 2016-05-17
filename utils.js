@@ -4,7 +4,7 @@ function padZero(num, size){ return ('000000000' + num).substr(-size); }
 function minutesToFormattedTime(minutes) {
 	var timeDiffHours = Math.floor(minutes / 60);
 	var timeDiffMinutes = Math.floor(minutes % 60);
-	return timeDiffHours + 'h' + padZero(timeDiffMinutes,2);
+	return timeDiffHours + 'h ' + padZero(timeDiffMinutes,2) + 'min';
 }
 
 function formatDateTime(date) {
