@@ -1,11 +1,12 @@
 "use strict";
 /* global process; */
-var assert = require('assert');
-var colors = require('colors');
-var MongoClient = require('mongodb').MongoClient;
-var ObjectId = require('mongodb').ObjectID;
-var Config = require('./config');
-var Utils = require('./utils');
+let assert = require('assert');
+let BusStopStats = require('./busStopStats');
+let colors = require('colors');
+let MongoClient = require('mongodb').MongoClient;
+let ObjectId = require('mongodb').ObjectID;
+let Config = require('./config');
+let Utils = require('./utils');
 
 /**
  * Connect to database.
@@ -130,7 +131,7 @@ function calculateTimeBetweenBuses(busStopHistory) {
 		return dateA - dateB;
 	});
 	
-	var timeDiffs = [];
+	let busStopStats = new BusStopStats();
 	
 	for (var i=1; i<busStopHistoryOrdered.length; i++) {
 		var bus = busStopHistoryOrdered[i];
@@ -138,24 +139,12 @@ function calculateTimeBetweenBuses(busStopHistory) {
 
 		// Time between buses
 		var timeDiff = Math.round(Math.abs(new Date(bus.timestamp) - new Date(busPrevious.timestamp))/1000/60);
-		timeDiffs.push(timeDiff);
+		busStopStats.addTimeDiffPoint(timeDiff, new Date(bus.timestamp));
 		
 		console.log('* Time since last bus: ' + Utils.minutesToFormattedTime(timeDiff).bold + colors.dim(' (between ' + busPrevious.order + ' at ' + Utils.formatTime(busPrevious.timestamp) + ' and ' + bus.order + ' at ' + Utils.formatTime(bus.timestamp) + ')'));
 	}
 	
-	// Calculate average time between buses
-	var average = 0;
-	timeDiffs.forEach(function(timeDiff) { average += timeDiff; });
-	average /= timeDiffs.length;
-	process.stdout.write('* Average time between buses: ' + Utils.minutesToFormattedTime(average).bold);
-	
-	// Calculate standard deviation
-	var stdDeviation = 0;
-	timeDiffs.forEach(function(timeDiff) { stdDeviation += Math.pow(timeDiff - average,2); });
-	stdDeviation = Math.sqrt(stdDeviation/(timeDiffs.length-1));
-	process.stdout.write(' (standard deviation: ' + Utils.minutesToFormattedTime(stdDeviation) + ')\n');
-	
-	return { avgWaitTime: average, avgWaitTimeStdDev: stdDeviation };
+	return busStopStats;
 }
 
 /**

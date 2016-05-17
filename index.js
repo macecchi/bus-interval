@@ -3,6 +3,7 @@
 const assert = require('assert');
 const colors = require('colors');
 const Config = require('./config');
+const LineStats = require('./lineStats');
 const RioBus = require('./operations');
 const Utils = require('./utils');
 const wait = require('wait.for-es6');
@@ -20,8 +21,6 @@ console.log('Searching with line ' + searchLine + '\n');
 if (filterSpot != -1) console.log('Filtering only bus stop with sequence #' + filterSpot);
 
 console.time('Total');
-
-var lineStats = {};
 
 function* main() {
 	let db = yield wait.for(RioBus.connect);
@@ -51,8 +50,9 @@ function* main() {
 	
 	console.time('GeoNear Query');
 	console.log("Line " + line.line + ": " + line.spots.length + " bus stops\n");
-	lineStats[line.line] = { avgWaitTime: 0, avgWaitCount: 0, avgReturnTime: 0, avgReturnCount: 0 };
 	
+	var lineStats = new LineStats();
+
 	totalBusStops = line.spots.length;
 	var countStops = 0;
 	
@@ -106,16 +106,10 @@ function* main() {
 			// Generate statistics for bus stop
 			console.log(colors.yellow('\nStatistics - Bus stop #' + bus_stop.sequential + ':'));
 			
-			var waitStats = RioBus.calculateTimeBetweenBuses(busStopHistory);
-			if (!isNaN(waitStats.avgWaitTime) && waitStats.avgWaitTime > 0) {
-				lineStats[line.line].avgWaitTime += waitStats.avgWaitTime;
-				lineStats[line.line].avgWaitCount++;
-			}
-			var returnStats = RioBus.calculateBusReturnTimes(busStopHistory);
-			if (!isNaN(returnStats.avgReturnTime) && returnStats.avgReturnTime > 0) {
-				lineStats[line.line].avgReturnTime += returnStats.avgReturnTime;
-				lineStats[line.line].avgReturnCount++;
-			}
+			var busStopStats = RioBus.calculateTimeBetweenBuses(busStopHistory);
+			busStopStats.printStats();
+			
+			lineStats.addBusStopStats(busStopStats);
 		}
 		
 		console.log('');
@@ -124,16 +118,9 @@ function* main() {
 	console.timeEnd('GeoNear Query');
 	console.timeEnd('Total');
 	
-	printStats(line);
+	console.log('Line stats:');
+	lineStats.printStats();
 	process.exit(0);
 }
 
 wait.launchFiber(main);
-
-function printStats(line) {
-	var avgWaitTime = lineStats[line.line].avgWaitTime / lineStats[line.line].avgWaitCount;
-	var avgReturnTime = lineStats[line.line].avgReturnTime / lineStats[line.line].avgReturnCount;
-	console.log('Line stats:');
-	console.log('- Average wait time: ' + Utils.minutesToFormattedTime(avgWaitTime).bold);
-	console.log('- Average return time: ' + Utils.minutesToFormattedTime(avgReturnTime).bold);
-}
