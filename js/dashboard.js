@@ -3,7 +3,7 @@ var date = '2016-04-13';
 var statsFolder = 'stats';
 var line = '325';
 
-var margin = {top: 10, right: 0, bottom: 30, left: 40},
+var margin = {top: 10, right: 0, bottom: 40, left: 40},
     width = $(graphContainer).width() - margin.left - margin.right,
     height = $(graphContainer).height() - margin.top - margin.bottom;
 
@@ -26,17 +26,23 @@ function processStats(line, date) {
       var hourlyWaitTimes = []
       var hours = [];
       for (var hour=0; hour<24; hour++) {
-          hours.push(hour);
-          // hours.push(hour + '-' + (hour+1) + 'h00');
-          hourlyWaitTimes.push({ hour: hour, waitTime: data.hourlyAvgWaitTimes[hour]});
+        var hourString = hour + '-' + (hour+1)%24 + 'h'
+        hours.push(hourString);
+        hourlyWaitTimes.push({ hour: hourString, waitTime: data.hourlyAvgWaitTimes[hour]});
       }
+
     x.domain(hours);
     y.domain([0, d3.max(data.hourlyAvgWaitTimes)]);
 
     svg.append("g")
         .attr("class", "x axis")
         .attr("transform", "translate(0," + height + ")")
-        .call(xAxis);
+        .call(xAxis)
+   .selectAll("text")
+        .attr("y", 10)
+        .attr("x", 0)
+        .attr("transform", "rotate(-45)")
+       .style("text-anchor", "end");
 
     svg.append("g")
         .attr("class", "y axis")

@@ -111,9 +111,6 @@ body {
   shape-rendering: crispEdges;
 }
 
-.x.axis path {
-  display: none;
-}
 
 .line-subtitle {
   font-size: 1.5em;
