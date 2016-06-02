@@ -1,6 +1,8 @@
+var graph_container = '#graph';
+
 var margin = {top: 10, right: 0, bottom: 30, left: 40},
-    width = 960 - margin.left - margin.right,
-    height = 500 - margin.top - margin.bottom;
+    width = $(graph_container).width() - margin.left - margin.right,
+    height = $(graph_container).height() - margin.top - margin.bottom;
 
 var x = d3.scale.ordinal()
     .rangeRoundBands([0, width], .1);
@@ -17,7 +19,7 @@ var yAxis = d3.svg.axis()
     .orient("left")
     .ticks(10, "");
 
-var svg = d3.select("#graph").append("svg:svg")
+var svg = d3.select(graph_container).append("svg:svg")
     .attr("width", width + margin.left + margin.right)
     .attr("height", height + margin.top + margin.bottom)
   .append("g")

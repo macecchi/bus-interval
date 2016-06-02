@@ -114,3 +114,7 @@ body {
 .x.axis path {
   display: none;
 }
+
+#graph {
+  height: 400px;
+}
