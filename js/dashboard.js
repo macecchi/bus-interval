@@ -57,7 +57,8 @@ function processStats(line, date) {
         .attr("y", function(d) { return y(d.waitTime); })
         .attr("height", function(d) { return height - y(d.waitTime); });
 
-        $('#avg-return-time').html(data.avgReturnTime + ' min');
-        $('#avg-wait-time').html(data.avgWaitTime + ' min');
+        $('#avg-return-time').html(minutesToFormattedTime(data.avgReturnTime));
+        $('#avg-wait-time').html(minutesToFormattedTime(data.avgWaitTime));
+        $('#avg-wait-time-title').html(minutesToFormattedTime(data.avgWaitTime));
   });
 }
