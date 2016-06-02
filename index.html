@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <!-- The above 3 meta tags *must* come first in the head; any other head content must come *after* these tags -->
+    <meta name="description" content="">
+    <meta name="author" content="">
+    <link rel="icon" href="favicon.ico">
+
+    <title>Quanto tempo você espera seu ônibus?</title>
+
+    <!-- Bootstrap core CSS -->
+    <link href="css/bootstrap.min.css" rel="stylesheet">
+
+    <!-- Custom styles for this template -->
+    <link href="css/dashboard.css" rel="stylesheet">
+  </head>
+
+  <body>
+
+    <nav class="navbar navbar-inverse navbar-fixed-top">
+      <div class="container-fluid">
+        <div class="navbar-header">
+          <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
+            <span class="sr-only">Toggle navigation</span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+          </button>
+          <a class="navbar-brand" href="#">Frequência dos ônibus</a>
+        </div>
+        <div id="navbar" class="navbar-collapse collapse">
+          <form class="navbar-form navbar-right">
+            <input type="text" class="form-control" placeholder="Digite uma linha...">
+          </form>
+        </div>
+      </div>
+    </nav>
+
+    <div class="container-fluid">
+      <div class="row">
+        <div class="col-sm-3 col-md-2 sidebar">
+          <ul class="nav nav-sidebar">
+            <li><a href="#">Geral <span class="sr-only">(current)</span></a></li>
+            <li><a href="#">Todas as linhas</a></li>
+            <li><a href="#">Estatísticas</a></li>
+            <li><a href="#">Curiosidades</a></li>
+          </ul>
+          <ul class="nav nav-sidebar">
+            <li><h5>Internorte</h5></li>
+            <li><a href="">Linha 321</a></li>
+            <li><a href="">Linha 322</a></li>
+            <li><a href="">Linha 323</a></li>
+            <li><a href="">Linha 324</a></li>
+            <li class="active"><a href="">Linha 325</a></li>
+            <li><a href="">Linha 326</a></li>
+            <li><a href="">Linha 327</a></li>
+            <li><a href="">Linha 328</a></li>
+            <li><a href="">Linha 329</a></li>
+          </ul>
+          <ul class="nav nav-sidebar">
+            <li><h5>Intersul</h5></li>
+            <li><a href="">Linha 101</a></li>
+            <li><a href="">Linha 102</a></li>
+            <li><a href="">Linha 103</a></li>
+            <li><a href="">Linha 104</a></li>
+            <li><a href="">Linha 105</a></li>
+            <li><a href="">Linha 106</a></li>
+            <li><a href="">Linha 107</a></li>
+          </ul>
+        </div>
+        <div class="col-sm-9 col-sm-offset-3 col-md-10 col-md-offset-2 main">
+          <h1 class="page-header">Linha 325 - Ribeira X Castelo (Circular)</h1>
+
+          <div class="row placeholders">
+              <h4>Tempo médio de espera - 13/04/2016</h4>
+              <span class="text-muted">Tempo médio que demora pra passar um ônibus da linha 325 em cada horário do dia.</span>
+          </div>
+
+          <div class="row" id="graph">
+          </div>
+
+          <div class="row">
+              <div class="col-sm-6">
+                <h4>Dados da linha</h4>
+                <ul>
+                  <li><strong>Consórcio:</strong> Internorte</li>
+                  <li><strong>Itinerário:</strong> 50 km</li>
+                  <li><strong>Tempo de retorno:</strong> <span id="avg-return-time"></span> (médio)</li>
+                  <li><strong>Tempo de espera:</strong> <span id="avg-wait-time"></span> (médio)</li>
+                  <li><strong>Fonte dos dados:</strong> <a href="http://data.rio">data.rio</a></li>
+                  <li><strong>Live tracking:</strong> <a href="http://riob.us/?325">325</a></li>
+                </ul>
+              </div>
+
+              <div class="col-sm-6">
+                  <h4>Estatísticas anteriores</h4>
+                  <ul>
+                    <li><a href="#">Ontem</a></li>
+                    <li><a href="#">Outra data</a></li>
+                    <li><a href="#">Média da semana</a></li>
+                  </ul>
+              </div>
+          </div>
+
+        </div>
+      </div>
+    </div>
+
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
+    <script src="js/bootstrap.min.js"></script>
+    <script src="http://d3js.org/d3.v3.min.js"></script>
+    <script src="js/dashboard.js"></script>
+  </body>
+</html>
