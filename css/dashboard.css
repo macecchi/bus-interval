@@ -93,11 +93,11 @@ body {
 
 
 .bar {
-  fill: steelblue;
+  fill: lightblue;
 }
 
 .bar:hover {
-  fill: brown;
+  fill: #ccc;
 }
 
 .axis {
@@ -137,4 +137,21 @@ body {
 
 #avg-wait-time-title {
   font-weight: bold;
+}
+
+.axis path,
+.axis line {
+  fill: none;
+  stroke: #000;
+  shape-rendering: crispEdges;
+}
+
+.x.axis path {
+  display: none;
+}
+
+.line {
+  fill: none;
+  stroke: black;
+  stroke-width: 1.5px;
 }

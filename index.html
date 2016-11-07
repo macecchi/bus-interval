@@ -4,18 +4,9 @@
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <!-- The above 3 meta tags *must* come first in the head; any other head content must come *after* these tags -->
-    <meta name="description" content="">
-    <meta name="author" content="">
-    <link rel="icon" href="favicon.ico">
-
-    <title>Quanto tempo você espera seu ônibus?</title>
-
-    <!-- Bootstrap core CSS -->
     <link href="css/bootstrap.min.css" rel="stylesheet">
-
-    <!-- Custom styles for this template -->
     <link href="css/dashboard.css" rel="stylesheet">
+    <title>Quanto tempo você espera seu ônibus?</title>
   </head>
 
   <body>
@@ -41,69 +32,29 @@
 
     <div class="container-fluid">
       <div class="row">
-        <div class="col-sm-3 col-md-2 sidebar">
-          <ul class="nav nav-sidebar">
-            <li><a href="#">Geral <span class="sr-only">(current)</span></a></li>
-            <li><a href="#">Todas as linhas</a></li>
-            <li><a href="#">Estatísticas</a></li>
-            <li><a href="#">Curiosidades</a></li>
-          </ul>
-          <ul class="nav nav-sidebar">
-            <li><h5>Internorte</h5></li>
-            <li><a href="">Linha 321</a></li>
-            <li><a href="">Linha 322</a></li>
-            <li><a href="">Linha 323</a></li>
-            <li><a href="">Linha 324</a></li>
-            <li class="active"><a href="">Linha 325</a></li>
-            <li><a href="">Linha 326</a></li>
-            <li><a href="">Linha 327</a></li>
-            <li><a href="">Linha 328</a></li>
-            <li><a href="">Linha 329</a></li>
-          </ul>
-          <ul class="nav nav-sidebar">
-            <li><h5>Intersul</h5></li>
-            <li><a href="">Linha 101</a></li>
-            <li><a href="">Linha 102</a></li>
-            <li><a href="">Linha 103</a></li>
-            <li><a href="">Linha 104</a></li>
-            <li><a href="">Linha 105</a></li>
-            <li><a href="">Linha 106</a></li>
-            <li><a href="">Linha 107</a></li>
-          </ul>
-        </div>
-        <div class="col-sm-9 col-sm-offset-3 col-md-10 col-md-offset-2 main">
-          <h1 class="page-header">Linha 325 - Ribeira X Castelo (Circular)</h1>
+        <div class="col-sm-12 col-sm-offset-0 col-md-12 col-md-offset-0 main">
+          <h1 class="page-header">Linha <span class="line-title"></span></h1>
 
           <div class="row">
-            <p class="line-subtitle">🕒 Você espera em média <span id="avg-wait-time-title"></span> por um ônibus da linha 325 em 13/04/2016.</p>
+            <p class="line-subtitle">🕒 Você espera em média <span class="avg-wait-time"></span> por um ônibus da linha <span class="line-title"></span> em <span class="date-title"></span>.</p>
           </div>
 
           <div class="row">
-            <h4 class="graph-title">Tempo médio de espera<br>13/04/2016</h4>
+            <h4 class="graph-title">Frequência média<br><span class="date-title"></span></h4>
             <div id="graph"></div>
-            <div class="graph-legend">Tempo médio que demora pra passar um ônibus da linha 325 em cada horário do dia.</div>
+            <div class="graph-legend">Frequência média da linha <span class="line-title"></span> em cada horário do dia.</div>
           </div>
 
           <div class="row">
-              <div class="col-sm-6">
+              <div class="col-sm-12">
                 <h4>Dados da linha</h4>
                 <ul>
-                  <li><strong>Consórcio:</strong> Internorte</li>
-                  <li><strong>Itinerário:</strong> 50 km</li>
-                  <li><strong>Tempo de retorno:</strong> <span id="avg-return-time"></span> (médio)</li>
-                  <li><strong>Tempo de espera:</strong> <span id="avg-wait-time"></span> (médio)</li>
+                  <li><strong>Frequência:</strong> <span class="avg-frequency"></span> (média)</li>
+                  <li><strong>Tempo de retorno:</strong> <span class="avg-return-time"></span> (médio)</li>
+                  <li><strong>Tempo de espera:</strong> <span class="avg-wait-time"></span> (médio)</li>
                   <li><strong>Fonte dos dados:</strong> <a href="http://data.rio">data.rio</a></li>
-                  <li><strong>Live tracking:</strong> <a href="http://riob.us/?325">325</a></li>
+                  <li><strong>Live tracking:</strong> <a href="#" id="live-tracking-url"><span class="line-title"></span></a></li>
                 </ul>
-              </div>
-
-              <div class="col-sm-6">
-                  <h4>Estatísticas anteriores</h4>
-                  <ul>
-                    <li><a href="#">Ontem</a></li>
-                    <li><a href="#">Outra data</a></li>
-                    <li><a href="#">Média da semana</a></li>
-                  </ul>
               </div>
           </div>
 
