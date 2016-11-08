@@ -31,43 +31,43 @@ function* main() {
 		console.log('Line not found.');
 		process.exit(1);
 	}
-	
+
 	// Check if bus stops information is present before continuing
 	var totalBusStops = line.spots.length;
 	if (totalBusStops == 0) {
 		console.log('No bus stops were found for the selected lines. App will terminate.');
 		process.exit(2);
 	}
-	
+
 	console.log('Total of ' + totalBusStops + ' bus stops were found for the selected lines.\n');
 
 	console.time('LineOnDate Query');
 	console.log('Finding buses for line on date...');
-	
-	yield wait.for(RioBus.findBusesFromLineOnDate, db, searchLine);
-	console.log('Found history for line on date. Saved to temporary collection."');
+
+	var totalFound = yield wait.for(RioBus.findBusesFromLineOnDate, db, searchLine);
+	console.log('Found history for line on date. Saved ' + totalFound + ' documents in temporary collection.');
 	console.timeEnd('LineOnDate Query');
-	
+
 	console.time('GeoNear Query');
 	console.log("Line " + line.line + ": " + line.spots.length + " bus stops\n");
-	
+
 	var lineStats = new LineStats(line);
 
 	totalBusStops = line.spots.length;
 	var countStops = 0;
-	
+
 	for (let bus_stop of line.spots) {
 		// Skip if it doesn't match our filter
 		if (filterSpot != -1 && bus_stop.sequential != filterSpot) continue;
-		
+
 		var busStopHistory = [];
-		
+
 		let matches = yield wait.for(RioBus.findBusesCloseToCoordinate, db, line, bus_stop.longitude, bus_stop.latitude, bus_stop.returning);
 		console.log(colors.bold.bgWhite.black("[" + ++countStops + "/" + totalBusStops + "] Bus stop with sequence " + bus_stop.sequential + " at [" + bus_stop.latitude + ", " + bus_stop.longitude + "]"));
 
 		var previousMatch = {};
 		var previousMatches = [];
-		
+
 		console.log(colors.green('Found ' + matches.length + ' occurences within range of bus stop'));
 		for (let bus of matches) {
 			var time = new Date(bus.timestamp);
@@ -101,32 +101,32 @@ function* main() {
 
 			previousMatch = bus;
 		}
-		
+
 		if (matches.length > 0) {
 			// Generate statistics for bus stop
 			console.log(colors.yellow('\nStatistics - Bus stop #' + bus_stop.sequential + ':'));
-			
+
 			var busStopStats = RioBus.calculateTimeBetweenBuses(busStopHistory);
 			busStopStats.printStats();
-			
+
 			lineStats.addBusStopStats(busStopStats);
-			
+
 			var returnStats = RioBus.calculateBusReturnTimes(busStopHistory);
 			if (!isNaN(returnStats.avgReturnTime) && returnStats.avgReturnTime > 0) {
 				lineStats.addReturnTimePoint(returnStats.avgReturnTime);
 			}
 		}
-		
+
 		console.log('');
 	}
-	
+
 	console.timeEnd('GeoNear Query');
 	console.timeEnd('Total');
-	
+
 	console.log('Line stats:');
 	lineStats.printStats();
 	lineStats.exportStats();
-	
+
 	process.exit(0);
 }
 

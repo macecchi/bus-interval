@@ -1,6 +1,6 @@
 {
   "name": "bus-interval",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "Calculate bus interval times using data from Rio Bus",
   "main": "app.js",
   "scripts": {
