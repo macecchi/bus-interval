@@ -22,9 +22,10 @@
           </button>
           <a class="navbar-brand" href="#">Frequência dos ônibus</a>
         </div>
-        <div id="navbar" class="navbar-collapse collapse">
-          <form class="navbar-form navbar-right">
-            <input type="text" class="form-control" placeholder="Digite uma linha...">
+        <div class="navbar-collapse collapse">
+          <form id="dataset-selector-form" class="navbar-form navbar-right">
+            <select id="dataset-selector" name="dataset" class="form-control">
+            </select>
           </form>
         </div>
       </div>
@@ -42,7 +43,7 @@
           <div class="row">
             <h4 class="graph-title">Frequência média<br><span class="date-title"></span></h4>
             <div id="graph"></div>
-            <div class="graph-legend">Frequência média da linha <span class="line-title"></span> em cada horário do dia.</div>
+            <div class="graph-legend">Frequência média da linha <span class="line-title"></span> em cada horário do dia</div>
           </div>
 
           <div class="row">
@@ -52,8 +53,8 @@
                   <li><strong>Frequência:</strong> <span class="avg-frequency"></span> (média)</li>
                   <li><strong>Tempo de retorno:</strong> <span class="avg-return-time"></span> (médio)</li>
                   <li><strong>Tempo de espera:</strong> <span class="avg-wait-time"></span> (médio)</li>
-                  <li><strong>Fonte dos dados:</strong> <a href="http://data.rio">data.rio</a></li>
-                  <li><strong>Live tracking:</strong> <a href="#" id="live-tracking-url"><span class="line-title"></span></a></li>
+                  <li><strong>Fonte dos dados:</strong> <a href="http://data.rio">Data.rio</a></li>
+                  <li><strong>Live tracking:</strong> <a href="#" class="live-tracking-url"><span class="line-title"></span></a></li>
                 </ul>
               </div>
           </div>
@@ -63,9 +64,16 @@
     </div>
 
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
-    <script src="js/bootstrap.min.js"></script>
     <script src="http://d3js.org/d3.v3.min.js"></script>
+    <script src="js/bootstrap.min.js"></script>
     <script src="js/utils.js"></script>
-    <script src="js/dashboard.js"></script>
+    <script src="js/lineStats.js"></script>
+    <script src="js/lineStats.graph.js"></script>
+
+    <script type="text/javascript">
+    $(function() {
+      LineStats.init('#dataset-selector-form');
+    });
+    </script>
   </body>
 </html>
