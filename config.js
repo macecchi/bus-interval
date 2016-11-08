@@ -17,9 +17,6 @@ module.exports = {
         busHistoryTemporaryCollection: 'bus_history_temp'
     },
     query: {
-        // Time interval to query in UTC (min, max)
-        dateInterval: ["2015-07-04T00:00:00.000Z", "2015-07-06T03:00:00.000Z"],
-
         // Maximum distance a bus can be to a stop to be considered valid (meters)
         maxDistance: 99,
 

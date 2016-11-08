@@ -23,7 +23,7 @@ function connect(callback) {
 * Find buses of the requested line on a specific date and save it to a separate collection.
 * The indexes are also redefined on the new temporary collection.
 */
-function findBusesFromLineOnDate(db, line, callback) {
+function findBusesFromLineOnDate(db, line, date, callback) {
   var tempCollectionName = Config.schema.busHistoryTemporaryCollection;
   var queryInterval = Config.query.dateInterval;
   var found = 0;
@@ -31,8 +31,13 @@ function findBusesFromLineOnDate(db, line, callback) {
   db.collection(tempCollectionName).drop(function(err, response) {
     if (err != null && err.errmsg !== "ns not found") throw err;
 
+    var startDate = date;
+    var endDate = new Date(date);
+    startDate.setUTCHours(0,0,0,0);
+    endDate.setUTCHours(23,59,59,999);
+
     var cursor = db.collection(Config.schema.busHistoryCollection).find({
-      "timestamp": { "$gte": new Date(queryInterval[0]), "$lte": new Date(queryInterval[1]) },
+      "timestamp": { "$gte": startDate, "$lte": endDate },
       "line": line,
       "sense": { "$nin": ["desconhecido", "indisponível"] }
     });

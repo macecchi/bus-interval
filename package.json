@@ -31,6 +31,7 @@
     "colors": "^1.1.2",
     "jsonfile": "^2.3.1",
     "mongodb": "^2.1.0",
-    "wait.for-es6": "^0.1.0"
+    "wait.for-es6": "^0.1.0",
+    "yargs": "^6.3.0"
   }
 }
