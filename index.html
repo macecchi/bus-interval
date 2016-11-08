@@ -1,79 +1,108 @@
 <!DOCTYPE html>
-<html lang="en">
-  <head>
-    <meta charset="utf-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <link href="css/bootstrap.min.css" rel="stylesheet">
-    <link href="css/dashboard.css" rel="stylesheet">
-    <title>Quanto tempo você espera seu ônibus?</title>
-  </head>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link href="css/bootstrap.min.css" rel="stylesheet">
+  <link href="css/dashboard.css" rel="stylesheet">
+  <title>Frequência dos ônibus</title>
+</head>
 
-  <body>
+<body>
 
-    <nav class="navbar navbar-inverse navbar-fixed-top">
-      <div class="container-fluid">
-        <div class="navbar-header">
-          <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
-            <span class="sr-only">Toggle navigation</span>
-            <span class="icon-bar"></span>
-            <span class="icon-bar"></span>
-            <span class="icon-bar"></span>
-          </button>
-          <a class="navbar-brand" href="#">Frequência dos ônibus</a>
-        </div>
-        <div class="navbar-collapse collapse">
-          <form id="dataset-selector-form" class="navbar-form navbar-right">
-            <select id="dataset-selector" name="dataset" class="form-control">
-            </select>
-          </form>
-        </div>
-      </div>
-    </nav>
-
+  <nav class="navbar navbar-inverse navbar-fixed-top">
     <div class="container-fluid">
-      <div class="row">
-        <div class="col-sm-12 col-sm-offset-0 col-md-12 col-md-offset-0 main">
-          <h1 class="page-header">Linha <span class="line-title"></span></h1>
-
-          <div class="row">
-            <p class="line-subtitle">🕒 Você espera em média <span class="avg-wait-time"></span> por um ônibus da linha <span class="line-title"></span> em <span class="date-title"></span>.</p>
-          </div>
-
-          <div class="row">
-            <h4 class="graph-title">Frequência média<br><span class="date-title"></span></h4>
-            <div id="graph"></div>
-            <div class="graph-legend">Frequência média da linha <span class="line-title"></span> em cada horário do dia</div>
-          </div>
-
-          <div class="row">
-              <div class="col-sm-12">
-                <h4>Dados da linha</h4>
-                <ul>
-                  <li><strong>Frequência:</strong> <span class="avg-frequency"></span> (média)</li>
-                  <li><strong>Tempo de retorno:</strong> <span class="avg-return-time"></span> (médio)</li>
-                  <li><strong>Tempo de espera:</strong> <span class="avg-wait-time"></span> (médio)</li>
-                  <li><strong>Fonte dos dados:</strong> <a href="http://data.rio">Data.rio</a></li>
-                  <li><strong>Live tracking:</strong> <a href="#" class="live-tracking-url"><span class="line-title"></span></a></li>
-                </ul>
-              </div>
-          </div>
-
-        </div>
+      <div class="navbar-header">
+        <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
+          <span class="sr-only">Toggle navigation</span>
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+        </button>
+        <a class="navbar-brand" href="#">Frequência dos ônibus</a>
+      </div>
+      <div class="navbar-collapse collapse">
+        <form id="dataset-selector-form" class="navbar-form navbar-right">
+          <select id="dataset-selector" name="dataset" class="form-control">
+          </select>
+        </form>
       </div>
     </div>
+  </nav>
 
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
-    <script src="http://d3js.org/d3.v3.min.js"></script>
-    <script src="js/bootstrap.min.js"></script>
-    <script src="js/utils.js"></script>
-    <script src="js/lineStats.js"></script>
-    <script src="js/lineStats.graph.js"></script>
+  <div class="container-fluid">
+    <div class="row">
+      <div class="col-sm-12 col-sm-offset-0 col-md-12 col-md-offset-0 main">
+        <h1 class="page-header">Linha <span class="line-title"></span></h1>
 
-    <script type="text/javascript">
-    $(function() {
-      LineStats.init('#dataset-selector-form');
-    });
-    </script>
-  </body>
+        <div class="row">
+          <div class="col-sm-12">
+            <p class="line-subtitle">🕒 Você espera em média <span class="avg-wait-time"></span> por um ônibus da linha <span class="line-title"></span> em <span class="date-title"></span>.</p>
+          </div>
+        </div>
+
+        <div class="row">
+          <div class="col-sm-2">
+            <strong>Linha</strong><br>
+            <span class="line-title"></span>
+          </div>
+
+          <div class="col-sm-2">
+            <strong>Frequência</strong><br>
+            <span class="avg-frequency"></span> (média)
+          </div>
+
+          <div class="col-sm-2">
+            <strong>Tempo de retorno</strong><br>
+            <span class="avg-return-time"></span> (médio)
+          </div>
+
+          <div class="col-sm-2">
+            <strong>Tempo de espera</strong><br>
+            <span class="avg-wait-time"></span> (médio)
+          </div>
+
+          <div class="col-sm-2">
+            <strong>Fonte dos dados</strong><br>
+            <a href="http://data.rio">Data.rio</a>
+          </div>
+
+          <div class="col-sm-2">
+            <strong>Live tracking</strong><br>
+            <a href="#" class="live-tracking-url">RioBus</a>
+          </div>
+        </div>
+
+        <div class="row">
+          <div class="col-sm-12">
+            <h4 class="graph-title">Frequência média<br><span class="date-title"></span></h4>
+
+            <div id="graph"></div>
+          </div>
+        </div>
+
+        <div class="row">
+          <div class="graph-legend">Frequência média da linha <span class="line-title"></span> em cada horário do dia</div>
+        </div>
+
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
+<script src="http://d3js.org/d3.v3.min.js"></script>
+<script src="js/bootstrap.min.js"></script>
+<script src="js/utils.js"></script>
+<script src="js/lineStats.js"></script>
+<script src="js/lineStats.graph.js"></script>
+
+<script type="text/javascript">
+$(function() {
+  LineStats.init('#dataset-selector-form');
+});
+</script>
+</body>
 </html>
