@@ -16,7 +16,7 @@ const argv = require('yargs')
   .alias('s', 'stop')
   .number('s')
   .demand(['l','d'])
-  .example('$0 --line 485 --date 2016-01-12')
+  .example('./bus-interval --line 485 --date 2016-01-12')
   .argv;
 
 const assert = require('assert');
@@ -25,13 +25,16 @@ const Config = require('./config');
 const LineStats = require('./lineStats');
 const RioBus = require('./operations');
 const Utils = require('./utils');
+const exec = require('child_process').exec;
+const jsonfile = require('jsonfile');
+const open = require('open');
 const wait = require('wait.for-es6');
 
 let searchLine = argv.line;
 let searchDate = new Date(argv.date);
 assert(!isNaN(searchDate), 'Invalid date parameter.');
 
-console.log('Searching with line ' + searchLine + ' on ' + searchDate.toISOString() + '\n');
+console.log('Searching with line ' + searchLine + ' on ' + argv.date + '\n');
 
 let filterSpot = argv.stop || -1;
 if (filterSpot != -1) console.log('Filtering only bus stop with sequence #' + filterSpot);
@@ -71,7 +74,7 @@ function* main() {
   console.time('GeoNear Query');
   console.log("Line " + line.line + ": " + line.spots.length + " bus stops\n");
 
-  var lineStats = new LineStats(line);
+  var lineStats = new LineStats(line, argv.date);
 
   totalBusStops = line.spots.length;
   var countStops = 0;
@@ -145,9 +148,34 @@ function* main() {
 
   console.log('Line stats:');
   lineStats.printStats();
-  lineStats.exportStats();
+  let datasetName = lineStats.exportStats();
+
+  yield wait.for(updateDatasetsFile);
+  openStatsPage(datasetName);
 
   process.exit(0);
+}
+
+function updateDatasetsFile(success) {
+  exec('find stats/*/*.json', function(err, stdout, stderr) {
+    let files = stdout.split('\n');
+    let datasets = [];
+    for (let file of files) {
+      if (file == '') continue;
+      file = file.replace('stats/', '');
+      datasets.push(file);
+    }
+
+    jsonfile.spaces = 2;
+    jsonfile.writeFileSync('stats/datasets.json', datasets);
+
+    success();
+  });
+}
+
+function openStatsPage(datasetName) {
+  console.log('dataset name', datasetName);
+  open('html/index.html');
 }
 
 wait.launchFiber(main);

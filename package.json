@@ -4,8 +4,7 @@
   "description": "Calculate bus interval times using data from Rio Bus",
   "main": "app.js",
   "scripts": {
-    "start": "node index.js",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "start": "echo \"Error: please use ./bus-interval\""
   },
   "repository": {
     "type": "git",
@@ -31,6 +30,7 @@
     "colors": "^1.1.2",
     "jsonfile": "^2.3.1",
     "mongodb": "^2.1.0",
+    "open": "0.0.5",
     "wait.for-es6": "^0.1.0",
     "yargs": "^6.3.0"
   }

@@ -49,9 +49,7 @@ LineStats.processStatsFromFile = function(filePath) {
 
 LineStats.updatePageInfoWithData = function(data) {
   $('.line-title').html(data.line);
-
-  var date = new Date(data.date);
-  $('.date-title').html(date.toLocaleDateString());
+  $('.date-title').html(data.date);
 
   $('.live-tracking-url').attr('href', 'http://riob.us/?' + data.line);
 

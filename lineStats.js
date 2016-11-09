@@ -1,10 +1,11 @@
 'use strict';
-const jsonfile = require('jsonfile')
+const jsonfile = require('jsonfile');
 const Utils = require('./utils');
 
 class LineStats {
-  constructor(line) {
+  constructor(line, date) {
     this.line = line;
+    this.date = date;
     this.waitTime = 0;
     this.waitCount = 0;
     this.returnTime = 0;
@@ -31,15 +32,19 @@ class LineStats {
   }
 
   exportStats() {
-    var stats = {
+    let stats = {
       line: this.line.line,
+      date: this.date,
       avgFrequency: this.avgWaitTime(),
       avgReturnTime: this.avgReturnTime(),
       hourlyFrequencies: this.avgHourlyWait()
     };
 
-    jsonfile.spaces = 4;
-    jsonfile.writeFileSync('stats/' + this.line.line + '.json', stats);
+    let fileName = this.line.line + '/' + this.date + '.json';
+    jsonfile.spaces = 2;
+    jsonfile.writeFileSync('stats/' + fileName, stats);
+    
+    return fileName;
   }
 
   // Bus Stop
